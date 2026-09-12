@@ -1,0 +1,54 @@
+# Fontes e créditos
+
+Documentos obtidos em 12/09/2026. Os originais permanecem sem alterações; as prévias são renderizações das páginas identificadas. Direitos e marcas continuam pertencendo aos respectivos autores. Não há licença única aplicada aos documentos de terceiros.
+
+| Arquivo local | Páginas | Origem |
+| --- | ---: | --- |
+| [pic16f887.pdf](../assets/documents/pic16f887.pdf) | 288 | [Fabricante / repositório oficial](https://ww1.microchip.com/downloads/en/devicedoc/41291d.pdf) |
+| [pic12f675.pdf](../assets/documents/pic12f675.pdf) | 132 | [Fabricante / repositório oficial](https://ww1.microchip.com/downloads/en/devicedoc/41190c.pdf) |
+| [pic12f683.pdf](../assets/documents/pic12f683.pdf) | 176 | [Fabricante / repositório oficial](https://ww1.microchip.com/downloads/en/devicedoc/41211d_.pdf) |
+| [pic12f1501.pdf](../assets/documents/pic12f1501.pdf) | 292 | [Fabricante / repositório oficial](https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/DataSheets/40001615C.pdf) |
+| [atmega328p.pdf](../assets/documents/atmega328p.pdf) | 294 | [Fabricante / repositório oficial](https://docs.arduino.cc/resources/datasheets/ATmega328P-datasheet.pdf) |
+| [uno-pinout.pdf](../assets/documents/uno-pinout.pdf) | 5 | [Fabricante / repositório oficial](https://docs.arduino.cc/resources/pinouts/A000066-full-pinout.pdf) |
+| [nano-pinout.pdf](../assets/documents/nano-pinout.pdf) | 3 | [Fabricante / repositório oficial](https://docs.arduino.cc/resources/pinouts/A000005-full-pinout.pdf) |
+| [stm32f103c8.pdf](../assets/documents/stm32f103c8.pdf) | 117 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/BluePill-Plus/master/Doc/STM32F103C8T6/DS5319-STM32F103x8-Datasheet.pdf) |
+| [stm32g474.pdf](../assets/documents/stm32g474.pdf) | 236 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32G474CoreBoard/master/Doc/STM32G474xE_DS12288.pdf) |
+| [g474-long-schematic.pdf](../assets/documents/g474-long-schematic.pdf) | 1 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32G474CoreBoard/master/Hardware/QFN48/WeAct-STM32G474CoreBoard_Long/WeAct-STM32G474CoreBoard_Long_V10%20SchDoc.pdf) |
+| [g474-long-pinout.pdf](../assets/documents/g474-long-pinout.pdf) | 3 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32G474CoreBoard/master/Hardware/QFN48/WeAct-STM32G474CoreBoard_Long/WeAct-STM32G474CoreBoard_Long_V10%20Board%20Shape%20%E5%A4%96%E5%BD%A2.pdf) |
+| [stm32h7r3.pdf](../assets/documents/stm32h7r3.pdf) | 320 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Doc/stm32h7r3z8.pdf) |
+| [h7-schematic.pdf](../assets/documents/h7-schematic.pdf) | 4 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Hardware/WeAct-STM32H7R3Zx_CoreBoard_V10%20SchDoc.pdf) |
+| [h7-pinout.pdf](../assets/documents/h7-pinout.pdf) | 3 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Hardware/WeAct-STM32H7R3Zx_CoreBoard_V10%20Board%20Shape%20%E5%A4%96%E5%BD%A2.pdf) |
+| [stm32f411ce.pdf](../assets/documents/stm32f411ce.pdf) | 149 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.MiniSTM32F4x1/master/Datasheet/STM32F411CEU6_Datasheet.pdf) |
+| [blackpill-pinout.pdf](../assets/documents/blackpill-pinout.pdf) | 1 | [Fabricante / repositório oficial](https://raw.githubusercontent.com/WeActStudio/WeActStudio.MiniSTM32F4x1/master/General%20document/STM32F4x1%20v2.0+%20Pin%20Layout.pdf) |
+
+## Pinagens
+
+As páginas abaixo usam numeração física do arquivo PDF (começando em 1), não necessariamente a numeração impressa.
+
+| Componente | Fonte | Página da prévia |
+| --- | --- | ---: |
+| PIC16F887 | pic16f887.pdf | 8 |
+| PIC12F675 | pic12f675.pdf | 4 |
+| PIC12F683 | pic12f683.pdf | 4 |
+| PIC12F1501 | pic12f1501.pdf | 3 |
+| BluePill — referência do chip | stm32f103c8.pdf | 26, figura superior LQFP48 |
+| Uno | uno-pinout.pdf | 1 |
+| Nano | nano-pinout.pdf | 1 |
+| BlackPill | blackpill-pinout.pdf | 1 |
+| G474 Long | g474-long-pinout.pdf | 1 |
+| H7R3 | h7-pinout.pdf | 1 |
+
+## Créditos
+
+- Microchip / Atmel: datasheets dos PICs e ATmega328P. Avisos de direitos preservados nos PDFs.
+- STMicroelectronics: datasheets STM32; algumas cópias distribuídas no repositório oficial WeAct.
+- WeAct Studio: diagramas, esquemas e documentação de suas placas. BlackPill pinout: Richard Balint, conforme crédito no próprio desenho.
+- Arduino: pinouts Uno e Nano, licença Creative Commons Attribution-ShareAlike 4.0 indicada nos documentos. As prévias mantêm os créditos da página.
+- Print da variante BlackPill: fornecido pelo usuário nesta tarefa; imagem de anúncio usada apenas como evidência de variante, não como fonte de limites elétricos.
+- LinkeDOM 0.18.12: biblioteca MIT para testes de estrutura de documento. [Licença incluída](../tests/vendor/LICENSE-linkedom), obtida do [registro npm](https://registry.npmjs.org/linkedom/-/linkedom-0.18.12.tgz). Não é carregada pela aplicação.
+
+## Rastreabilidade
+
+`data/sources.json` registra a URL original e o SHA-256 de cada PDF. Os testes conferem os arquivos contra esses hashes. A data é de obtenção, não de revisão do documento.
+
+Documentação de contexto pessoal, confirmações do usuário e limites da identificação estão em [handoff.md](../handoff.md). Os arquivos externos do Obsidian e TCC foram apenas lidos.

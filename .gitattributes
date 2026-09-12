@@ -1,0 +1,8 @@
+*.sqlite binary
+*.pdf binary
+*.png binary
+*.js text eol=lf
+*.mjs text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.sql text eol=lf

@@ -1,0 +1,98 @@
+[
+  {
+    "file": "assets/documents/pic16f887.pdf",
+    "url": "https://ww1.microchip.com/downloads/en/devicedoc/41291d.pdf",
+    "sha256": "b032738ba2254371328908f1b7b19aec54be8dbbf112fbfc5032c3e7bf21ffa5",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/pic12f675.pdf",
+    "url": "https://ww1.microchip.com/downloads/en/devicedoc/41190c.pdf",
+    "sha256": "949b77de31b07295952ebac86ca0f303635a8ac595df991df8950f3518353cb2",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/pic12f683.pdf",
+    "url": "https://ww1.microchip.com/downloads/en/devicedoc/41211d_.pdf",
+    "sha256": "8c33bd836b4623099d32059c436984918218d3788e8b3034df322cab1cffc1fb",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/pic12f1501.pdf",
+    "url": "https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/DataSheets/40001615C.pdf",
+    "sha256": "9797df2bbfe0cc6ee78a1a7b2644ab1ff5b96bf6617b2ef600b3d5f3b5540f52",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/atmega328p.pdf",
+    "url": "https://docs.arduino.cc/resources/datasheets/ATmega328P-datasheet.pdf",
+    "sha256": "fb84858d0b12c695a12b13f0c74b962d81210247d440c7a24c0ed23dfabfdfaf",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/uno-pinout.pdf",
+    "url": "https://docs.arduino.cc/resources/pinouts/A000066-full-pinout.pdf",
+    "sha256": "088b4d7d776abf443cb050c31875221aa5fc7f0533470b33e035c249cf240007",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/nano-pinout.pdf",
+    "url": "https://docs.arduino.cc/resources/pinouts/A000005-full-pinout.pdf",
+    "sha256": "2b9140b09cb66c788c1c4e01da33498a63e245fc133ac7d32697e140b00ea317",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/stm32f103c8.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/BluePill-Plus/master/Doc/STM32F103C8T6/DS5319-STM32F103x8-Datasheet.pdf",
+    "sha256": "4741c03c5793745c1709ab48237ea23d204c4fc2ca735ceafa03367f32960917",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/stm32g474.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32G474CoreBoard/master/Doc/STM32G474xE_DS12288.pdf",
+    "sha256": "b018e20dbe34b63a43e49365518b186ef0e0e8e899deeabc1c9f53a3a10c1add",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/g474-long-schematic.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32G474CoreBoard/master/Hardware/QFN48/WeAct-STM32G474CoreBoard_Long/WeAct-STM32G474CoreBoard_Long_V10 SchDoc.pdf",
+    "sha256": "c8c5670359ae1a3d2ec069fc46d950722dc5a0e2a704621dc8c45fb1dcf9098b",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/g474-long-pinout.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32G474CoreBoard/master/Hardware/QFN48/WeAct-STM32G474CoreBoard_Long/WeAct-STM32G474CoreBoard_Long_V10 Board Shape 外形.pdf",
+    "sha256": "37994a0bbb081bd81a57b95fcb0b9f2a785883866d32cb8cc740b04957e113b4",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/stm32h7r3.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Doc/stm32h7r3z8.pdf",
+    "sha256": "f818b9d0f5f67e1a25cb4f1316901d527a5e46fdfbe3a16d4de729bf42ba3483",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/h7-schematic.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Hardware/WeAct-STM32H7R3Zx_CoreBoard_V10 SchDoc.pdf",
+    "sha256": "f2d705a81600ad28647ab21ec339b6fade74ffd5b1f2a3be84231958b1d3c76e",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/h7-pinout.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Hardware/WeAct-STM32H7R3Zx_CoreBoard_V10 Board Shape 外形.pdf",
+    "sha256": "10887ffec60e3ecfff3eda2dadca7146414f34752f1ec1ac07a2931ff3327c83",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/stm32f411ce.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.MiniSTM32F4x1/master/Datasheet/STM32F411CEU6_Datasheet.pdf",
+    "sha256": "64b60c709aeafcc0cca3874ffeae4d1cc09ec752d1316e87c36c23f0e96686cc",
+    "retrieved": "2026-09-12"
+  },
+  {
+    "file": "assets/documents/blackpill-pinout.pdf",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.MiniSTM32F4x1/master/General document/STM32F4x1 v2.0+ Pin Layout.pdf",
+    "sha256": "9b1a3b36a803108411bea313dd76947c3d5829927ee133d0dc17fdd55609d1d8",
+    "retrieved": "2026-09-12"
+  }
+]
