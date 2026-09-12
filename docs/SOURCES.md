@@ -23,32 +23,35 @@ Documentos obtidos em 12/09/2026. Os originais permanecem sem alterações; as p
 
 ## Pinagens
 
-As páginas abaixo usam numeração física do arquivo PDF (começando em 1), não necessariamente a numeração impressa.
+As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho e sem arte gerada. A numeração é a física do PDF (começando em 1), não a impressa. `scripts/prepare_pinouts.py` reproduz cada recorte a partir dos arquivos versionados.
 
-| Componente | Fonte | Página da prévia |
-| --- | --- | ---: |
-| PIC16F887 | pic16f887.pdf | 8 |
-| PIC12F675 | pic12f675.pdf | 4 |
-| PIC12F683 | pic12f683.pdf | 4 |
-| PIC12F1501 | pic12f1501.pdf | 3 |
-| BluePill — referência do chip | stm32f103c8.pdf | 26, figura superior LQFP48 |
-| Uno | uno-pinout.pdf | 1 |
-| Nano | nano-pinout.pdf | 1 |
-| BlackPill | blackpill-pinout.pdf | 1 |
-| G474 Long | g474-long-pinout.pdf | 1 |
-| H7R3 | h7-pinout.pdf | 1 |
+| Componente | Fonte | Trecho usado |
+| --- | --- | --- |
+| PIC16F887 | pic16f887.pdf | p. 8 (diagrama PDIP-40) + p. 9 (Tabela 3, resumo dos 40 pinos) |
+| PIC12F675 | pic12f675.pdf | p. 4 (diagrama PDIP do F675) + p. 8 (Tabela 1-1, descrição dos pinos) |
+| PIC12F683 | pic12f683.pdf | p. 4 (diagrama PDIP + Tabela 1); os encapsulamentos DFN foram recortados fora |
+| PIC12F1501 | pic12f1501.pdf | p. 3 (diagrama) + p. 4 (Tabela 1, alocação de funções) |
+| BluePill | bluepill-generic-f103.png | imagem completa, sem recorte |
+| Uno | uno-pinout.pdf | p. 1 |
+| Nano | nano-pinout.pdf | p. 1 |
+| BlackPill | blackpill-pinout.pdf | p. 1, página inteira e inalterada |
+| G474 Long | weact-g474-long-board.png | recorte da placa |
+| H7R3 | weact-h7r3-board.png | recorte da placa |
+
+Desenhos de pinagem sem PDF oficial ficam em `assets/pinouts/sources/`. URL, SHA-256, crédito e licença de cada um estão em `data/pinout_sources.json`.
 
 ## Créditos
 
 - Microchip / Atmel: datasheets dos PICs e ATmega328P. Avisos de direitos preservados nos PDFs.
 - STMicroelectronics: datasheets STM32; algumas cópias distribuídas no repositório oficial WeAct.
-- WeAct Studio: diagramas, esquemas e documentação de suas placas. BlackPill pinout: Richard Balint, conforme crédito no próprio desenho.
+- WeAct Studio: diagramas, esquemas, renders e documentação de suas placas. BlackPill pinout: Richard Balint, conforme crédito no próprio desenho. As pinagens da G474 Long e da H7R3 são recortes dos renders oficiais publicados nos repositórios da WeAct.
+- BluePill: *The Generic STM32F103 Pinout Diagram*, de Rasmus Friis Kjeldsen (reblag.dk/stm32), publicado no Wikimedia Commons sob Creative Commons Attribution-ShareAlike 4.0. Usado sem alteração; o crédito e a licença aparecem na aba de pinagem e em `data/pinout_sources.json`. Obras derivadas deste desenho precisam manter a mesma licença.
 - Arduino: pinouts Uno e Nano, licença Creative Commons Attribution-ShareAlike 4.0 indicada nos documentos. As prévias mantêm os créditos da página.
 - Print da variante BlackPill: fornecido pelo usuário nesta tarefa; imagem de anúncio usada apenas como evidência de variante, não como fonte de limites elétricos.
 - LinkeDOM 0.18.12: biblioteca MIT para testes de estrutura de documento. [Licença incluída](../tests/vendor/LICENSE-linkedom), obtida do [registro npm](https://registry.npmjs.org/linkedom/-/linkedom-0.18.12.tgz). Não é carregada pela aplicação.
 
 ## Rastreabilidade
 
-`data/sources.json` registra a URL original e o SHA-256 de cada PDF. Os testes conferem os arquivos contra esses hashes. A data é de obtenção, não de revisão do documento.
+`data/sources.json` registra a URL original e o SHA-256 de cada PDF; `data/pinout_sources.json` faz o mesmo para as imagens de pinagem, somando crédito e licença. Os testes conferem os arquivos contra esses hashes. A data é de obtenção, não de revisão do documento.
 
 Documentação de contexto pessoal, confirmações do usuário e limites da identificação estão em [handoff.md](../handoff.md). Os arquivos externos do Obsidian e TCC foram apenas lidos.

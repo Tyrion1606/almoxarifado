@@ -21,19 +21,44 @@ sources={
 'stm32f411ce.pdf':gh+'WeActStudio.MiniSTM32F4x1/master/Datasheet/STM32F411CEU6_Datasheet.pdf',
 'blackpill-pinout.pdf':gh+'WeActStudio.MiniSTM32F4x1/master/General document/STM32F4x1 v2.0+ Pin Layout.pdf',
 }
+# Desenhos de pinagem que não existem em PDF oficial. Licença e crédito são obrigatórios na exibição.
+pinouts={
+'bluepill-generic-f103.png':dict(
+ url='https://upload.wikimedia.org/wikipedia/commons/9/90/Stm32f103_pinout_diagram.png',
+ credit='Rasmus Friis Kjeldsen · reblag.dk/stm32',license='CC BY-SA 4.0',
+ note='Diagrama genérico STM32F103 publicado no Wikimedia Commons.'),
+'weact-g474-long-board.png':dict(
+ url=gh+'WeActStudio.STM32G474CoreBoard/master/Images/1.png',
+ credit='WeAct Studio',license='Documentação do fabricante da placa',
+ note='Render oficial da versão Long com os nomes dos pinos.'),
+'weact-h7r3-board.png':dict(
+ url=gh+'WeActStudio.STM32H7R3Zx_CoreBoard/master/Images/1.png',
+ credit='WeAct Studio',license='Documentação do fabricante da placa',
+ note='Render oficial da placa H7R3 com os nomes dos pinos.'),
+}
+def fetch(path,url,magic):
+ if not path.exists():
+  payload=urllib.request.urlopen(urllib.request.Request(urllib.parse.quote(url,safe=':/+'),headers={'User-Agent':'almoxarifado/1.0'}),timeout=45).read()
+  if not payload.startswith(magic): raise ValueError('Conteúdo inesperado')
+  path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(payload)
+ return hashlib.sha256(path.read_bytes()).hexdigest()
 manifest=[]
+images=[]
 failures=[]
 for name,url in sources.items():
  path=ROOT/'assets/documents'/name
  try:
-  if not path.exists():
-   payload=urllib.request.urlopen(urllib.parse.quote(url,safe=':/+'),timeout=45).read()
-   if not payload.startswith(b'%PDF'): raise ValueError('Not a PDF')
-   path.write_bytes(payload)
-  manifest.append(dict(file=str(path.relative_to(ROOT)),url=url,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),retrieved='2026-09-12'))
+  manifest.append(dict(file=str(path.relative_to(ROOT)),url=url,sha256=fetch(path,url,b'%PDF'),retrieved='2026-09-12'))
   print(name,path.stat().st_size,flush=True)
  except Exception as e:
-  failures.append(name)
-  print('FAILED',name,str(e),flush=True)
+  failures.append(name);print('FAILED',name,str(e),flush=True)
+for name,meta in pinouts.items():
+ path=ROOT/'assets/pinouts/sources'/name
+ try:
+  images.append(dict(file=str(path.relative_to(ROOT)),sha256=fetch(path,meta['url'],b'\x89PNG\r\n\x1a\n'),retrieved='2026-09-12',**meta))
+  print(name,path.stat().st_size,flush=True)
+ except Exception as e:
+  failures.append(name);print('FAILED',name,str(e),flush=True)
 if failures: raise SystemExit('Downloads incompletos; manifesto anterior preservado: '+', '.join(failures))
 (ROOT/'data/sources.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+(ROOT/'data/pinout_sources.json').write_text(json.dumps(images,ensure_ascii=False,indent=2)+'\n')

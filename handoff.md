@@ -42,14 +42,16 @@ O plugin Sites foi solicitado e suas orientações de interface e SQLite foram c
 | `data/sources.json` | URLs, data de obtenção e SHA-256 dos documentos |
 | `data/readers/*.js` | Texto de cada PDF separado por página, carregado sob demanda |
 | `assets/documents/*.pdf` | 16 documentos originais locais |
-| `assets/pinouts/*.png` | 10 prévias renderizadas de páginas oficiais |
+| `assets/pinouts/*.png` | 10 prévias recortadas de páginas e renders oficiais |
+| `assets/pinouts/sources/*.png` | Desenhos de pinagem sem PDF oficial, como baixados |
+| `data/pinout_sources.json` | URL, SHA-256, crédito e licença desses desenhos |
 | `docs/evidence/blackpill-variant.png` | Print fornecido pelo usuário da variante adquirida |
 | `docs/SOURCES.md` | Proveniência, créditos e versões documentais |
 | `scripts/export.py` | Atualiza e confere catálogo JS e dump SQL |
 | `scripts/seed.py` | Restaura banco ausente a partir do dump; recusa sobrescrita |
 | `scripts/download_sources.py` | Lista explícita de downloads públicos; uso de manutenção |
-| `scripts/prepare_documents.py` | Extração textual e prévias das placas usando Poppler |
-| `scripts/prepare_pinouts.py` | Prévias das páginas de pinagem dos chips |
+| `scripts/prepare_documents.py` | Extração textual dos datasheets usando Poppler |
+| `scripts/prepare_pinouts.py` | Recorta todas as pinagens; requer Poppler e Pillow |
 | `tests/test_inventory.py` | Integridade, arquivos, variantes, hashes e reconstrução |
 | `tests/interface.mjs` | Fluxos da interface em DOM simulado |
 | `tests/vendor/` | LinkeDOM 0.18.12 e licença MIT, somente para testes |
@@ -84,7 +86,7 @@ Não há índices especulativos além de chaves primárias; apenas 10 componente
 | PIC12F1501-I/P | 3 estimadas | PDIP-8, PWM/CLC/NCO/CWG, HEF |
 | Arduino Uno | 1 | Referência Uno R3/ATmega328P; revisão física não especificada |
 | Arduino Nano | 2 | Referência Nano clássico/ATmega328P; um soldado em PCB, um solto |
-| BluePill | 3 | Família STM32 informada; ficha de referência F103C8T6, ainda sem confirmação documental da marcação exata das três unidades |
+| BluePill | 3 | STM32F103C8T6 confirmado pelo usuário em 12/09/2026: duas unidades com conector USB-C e uma com micro-USB |
 | WeAct BlackPill | 1 | STM32F411CEU6, HSE 25 MHz, Flash externa 8 MB, em uso no TCC |
 | WeAct G474 Long | 1 | STM32G474CEU6, UFQFPN48, 512 KiB Flash e 128 KiB SRAM; recém-adquirida |
 | WeAct H7R3 | 1 | STM32H7R3Z8J6, UFBGA144, 64 KiB internos e 8 MiB externos; recém-adquirida |
@@ -102,7 +104,7 @@ Ferramentas: 1 CH343P, 1 ST-Link V2, 1 PICkit 3. “picokit 3” foi normalizado
 - Conversa “Comparar placas STM32”, id `6a9714da-dba0-83e9-8e38-df50b08b01bc`, consultada nesta tarefa. A resposta final corrigida identifica CEU6 Long como 512 KB Flash / 128 KB RAM; não reaproveitar a identificação errada de um anúncio anterior.
 - Usuário confirmou nesta tarefa: BlackPill com Flash externa **8 MB**, WeAct. Essa confirmação substitui a incerteza histórica. Print `docs/evidence/blackpill-variant.png` mostra a opção **F411 25M HSE 8MFlash**. Não registrar novamente como capacidade desconhecida.
 
-A busca local pela BluePill encontrou uma conversa citada como “Branch · Software para programar Bluepill”, mas o texto consolidado correspondente descreve BlackPill F411. O link compartilhado não retornou o conteúdo pelo leitor web. Não confundir nome da conversa com prova de MCU, nem importar a identificação de um módulo ADS1256 + F103 de outro projeto como se fosse a BluePill. A ficha C8 é explícita como referência; manter essa distinção até evidência melhor.
+Em 12/09/2026 o usuário confirmou que as três BluePill são STM32F103C8T6, duas com conector USB-C e uma com micro-USB. Isso encerra a incerteza anterior: a ficha deixou de ser marcada como referência. A busca local havia encontrado uma conversa citada como “Branch · Software para programar Bluepill”, mas o texto consolidado correspondente descreve BlackPill F411; não confundir nome de conversa com prova de MCU, nem importar a identificação de um módulo ADS1256 + F103 de outro projeto como se fosse a BluePill. Continua valendo: não assumir 128 KiB de Flash, porque o datasheet C8 declara 64 KiB.
 
 ## 6. Notas técnicas a preservar
 
@@ -128,11 +130,13 @@ Cada linha abre uma seção com abas: especificações, pinagem, datasheet comen
 
 **Documento original:** objeto PDF local com link alternativo. Diagramação e desenhos do fabricante são preservados. O visualizador nativo de PDF não recebe os tooltips do aplicativo; estes ficam na leitura comentada e nas fichas. Comportamento do visualizador varia conforme navegador. Não prometer anotação visual sobre cada palavra do PDF original.
 
-**Pinagem:** imagens renderizadas de páginas oficiais, sem desenho inventado ou arte gerada por IA. As páginas dos chips contêm encapsulamentos alternativos; observar o rótulo da ficha. BluePill exibe pinagem do chip LQFP48 (figura superior), não dos conectores de uma placa verificada. Documentos completos de pinagem ficam acessíveis para consultar outras vistas/páginas. O diagrama da BlackPill é o WeAct v2.0+, contém anotações de família: o datasheet F411 prevalece para recursos do chip.
+**Pinagem:** recortes de páginas e imagens oficiais, sem desenho inventado ou arte gerada por IA. `scripts/prepare_pinouts.py` descarta cabeçalho, rodapé, espaço vazio e encapsulamentos que não estão no acervo, e empilha diagrama e tabela de funções quando o fabricante as publica em páginas separadas. Cada ficha mostra o crédito da imagem, gravado em `pinout_credit`.
+
+Os quatro PICs trazem o diagrama PDIP mais a tabela de alocação de funções. Uno e Nano usam a folha oficial Arduino, inclusive a legenda de cores e o aviso de licença. BluePill passou a usar *The Generic STM32F103 Pinout Diagram* de Rasmus Friis Kjeldsen, CC BY-SA 4.0 — desenho da placa, com funções alternativas e limites elétricos; a imagem mostra a variante micro-USB, e duas das três unidades são USB-C. Obra derivada desse desenho precisa manter a mesma licença. G474 Long e H7R3 usam os renders oficiais WeAct, que trazem os nomes dos pinos sobre a placa real; o desenho mecânico de contorno continua acessível como documento completo. A pinagem da BlackPill não foi alterada a pedido do usuário: continua sendo o desenho WeAct v2.0+ de Richard Balint, byte a byte igual, com anotações de família — o datasheet F411 prevalece para recursos do chip.
 
 ## 8. Manutenção
 
-Executar na raiz do clone. Uso normal só precisa do navegador. Manutenção do banco requer Python 3 com sqlite3 (biblioteca padrão). Extração/renderização adicional requer Poppler; testes DOM requerem Node.js moderno. Nenhuma dependência é instalada ao abrir o site.
+Executar na raiz do clone. Uso normal só precisa do navegador. Manutenção do banco requer Python 3 com sqlite3 (biblioteca padrão). Extração textual requer Poppler; recortar pinagens requer Poppler e Pillow (`python3-pil`); testes DOM requerem Node.js moderno, que nesta máquina não está no PATH (há um binário em `~/.lmstudio/.internal/utils/node`). Nenhuma dependência é instalada ao abrir o site.
 
 Depois de editar o SQLite:
 
@@ -160,10 +164,10 @@ Atualização voluntária dos documentos:
 # Obtém apenas documentos listados que ainda não estão presentes; requer internet.
 python3 scripts/download_sources.py
 
-# Extrai as páginas e renderiza as prévias das placas; requer Poppler instalado.
+# Extrai o texto dos datasheets; requer Poppler instalado.
 python3 scripts/prepare_documents.py
 
-# Renderiza as páginas de pinagem dos chips; requer Poppler.
+# Recorta todas as pinagens; requer Poppler e Pillow.
 python3 scripts/prepare_pinouts.py
 
 # Inclui a proveniência atualizada no snapshot do catálogo.
@@ -180,10 +184,10 @@ Comitar somente arquivos desta tarefa. `git pull` recebe atualizações, `git pu
 
 ## 9. Validação desta entrega
 
-- 8 testes de dados passaram: integridade SQLite, chaves estrangeiras, quantidades, variantes confirmadas, todos os caminhos locais, hashes de todos os PDFs, existência dos textos, reconstrução por SQL, exportação determinística e ausência de dependências de rede de execução.
+- 9 testes de dados passaram: integridade SQLite, chaves estrangeiras, quantidades, variantes confirmadas, todos os caminhos locais, hashes de todos os PDFs, hashes/crédito/licença das imagens de pinagem, existência dos textos, reconstrução por SQL, exportação determinística e ausência de dependências de rede de execução.
 - Testes de interação passaram com LinkeDOM: busca com/sem resultado, filtro de família, expansão, caminhos de pinagem e PDF, comparação/diferenças/remoção, busca no glossário, modal, ferramentas, leitor e busca/paginação/limites.
 - Sintaxe JavaScript verificada pelo Node.
-- Prévias de pinagem foram inspecionadas como imagens locais, incluindo PICs, F103, Uno, Nano, BlackPill, G474 Long e H7R3.
+- Todas as prévias de pinagem foram inspecionadas como imagens locais depois do recorte: os quatro PICs com diagrama e tabela, BluePill, Uno, Nano, G474 Long, H7R3 e a BlackPill inalterada. O arquivo da BlackPill foi conferido por hash antes e depois de rodar o gerador.
 - Os PDFs são snapshots técnicos, não todos as revisões mais recentes. Seu hash, data de obtenção e número de páginas estão registrados; não afirmar revisão de todas as páginas ou todas as especificações elétricas.
 - **Validação visual de navegador pendente:** Chrome recusou `file:///home/davi/repos/almoxarifado/index.html` pela política da ferramenta de navegação. Nenhuma tentativa de contorno foi feita. Não houve teste visual em navegador real, responsividade renderizada nem interação real com o visualizador PDF. LinkeDOM testa estrutura e lógica, não layout nem comportamento nativo do navegador.
 - Um teste inicial de servidor local foi impedido pela restrição de sockets da sandbox. Nenhum servidor ficou rodando; nenhuma porta é necessária para o uso final.
@@ -191,7 +195,7 @@ Comitar somente arquivos desta tarefa. `git pull` recebe atualizações, `git pu
 ## 10. Próximos passos e limites concretos
 
 1. Usuário abrir index.html, conferir tabela, expandir BlackPill/G474, visualizar pinagem e datasheet, comparar dois componentes. Registrar o resultado da revisão visual e corrigir qualquer problema encontrado.
-2. Recuperar/confirmar o código físico das BluePill sem confundir o histórico da BlackPill; se for C8 confirmado, retirar a qualificação de referência e adicionar mapa de conectores da revisão correta.
+2. BluePill: marcação C8T6 confirmada pelo usuário e qualificação de referência retirada. Falta, se o usuário quiser, um desenho específico da variante USB-C — o diagrama atual é da variante micro-USB e serve para as três porque o chip é o mesmo.
 3. Confirmar as revisões Uno/Nano e quantidades PIC somente quando houver nova informação, sem impedir a consulta atual.
 4. Expandir glossário conforme termos que o usuário encontrar. Para cobertura visual sobre todas as palavras do PDF original, uma etapa futura poderia usar um renderizador local com camada de texto; avaliar tamanho e compatibilidade `file://` antes de mudar a arquitetura.
 5. Adicionar novas categorias apenas quando solicitado; não incluir automaticamente os semicondutores de potência do Obsidian.

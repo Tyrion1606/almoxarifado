@@ -33,6 +33,14 @@ class InventoryTests(unittest.TestCase):
    reader=ROOT/'data/readers'/path.with_suffix('.js').name
    pages=json.loads(reader.read_text().split(' = ',1)[1].removesuffix(';\n'))
    self.assertTrue(pages);self.assertTrue(any(page.strip() for page in pages))
+ def test_pinout_credits_and_sources(self):
+  for part in self.data['components']:
+   self.assertTrue(part.get('pinout_credit'),part['id'])
+  for source in json.loads((ROOT/'data/pinout_sources.json').read_text()):
+   blob=(ROOT/source['file']).read_bytes()
+   self.assertTrue(blob.startswith(b'\x89PNG\r\n\x1a\n'),source['file'])
+   self.assertEqual(hashlib.sha256(blob).hexdigest(),source['sha256'])
+   self.assertTrue(source['credit'] and source['license'],source['file'])
  def test_sql_roundtrip(self):
   restored=sqlite3.connect(':memory:');restored.executescript((ROOT/'data/inventory.sql').read_text())
   for table,key in [('components','id'),('glossary','term'),('tools','id'),('categories','id')]:

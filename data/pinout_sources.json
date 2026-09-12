@@ -1,0 +1,29 @@
+[
+  {
+    "file": "assets/pinouts/sources/bluepill-generic-f103.png",
+    "sha256": "0b41528c275509476dd2979a56e0c94533393623f9501ef0db62463fb3f8e911",
+    "retrieved": "2026-09-12",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/90/Stm32f103_pinout_diagram.png",
+    "credit": "Rasmus Friis Kjeldsen · reblag.dk/stm32",
+    "license": "CC BY-SA 4.0",
+    "note": "Diagrama genérico STM32F103 publicado no Wikimedia Commons."
+  },
+  {
+    "file": "assets/pinouts/sources/weact-g474-long-board.png",
+    "sha256": "0cca41bee01f4655b1ae831f18362188db7113cd3cedc7b2ab354b7b4cb5e721",
+    "retrieved": "2026-09-12",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32G474CoreBoard/master/Images/1.png",
+    "credit": "WeAct Studio",
+    "license": "Documentação do fabricante da placa",
+    "note": "Render oficial da versão Long com os nomes dos pinos."
+  },
+  {
+    "file": "assets/pinouts/sources/weact-h7r3-board.png",
+    "sha256": "622210f5ac3ff79937d90bec527c3aaf8c656e842cf84474cf3eaa33eaaf2b91",
+    "retrieved": "2026-09-12",
+    "url": "https://raw.githubusercontent.com/WeActStudio/WeActStudio.STM32H7R3Zx_CoreBoard/master/Images/1.png",
+    "credit": "WeAct Studio",
+    "license": "Documentação do fabricante da placa",
+    "note": "Render oficial da placa H7R3 com os nomes dos pinos."
+  }
+]
