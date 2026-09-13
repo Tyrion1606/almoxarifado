@@ -25,9 +25,9 @@ PAGES={
 # Página inteira, gravada como o Poppler entrega: a pinagem da BlackPill já é a melhor do acervo.
 WHOLE={'blackpill-pinout':('blackpill-pinout.pdf',1)}
 # Imagens já prontas: (arquivo em sources, região de busca da placa, ampliação).
+# A G474 Long não entra aqui: usa g474-long-pinout-simple.png e -full.png (docs/G474-PINOUT.md).
 IMAGES={
  'bluepill-pinout':('bluepill-generic-f103.png',None,1),
- 'g474-long-pinout':('weact-g474-long-board.png',(0.415,0.0,1.0,1.0),2),
  'h7-pinout':('weact-h7r3-board.png',(0.405,0.0,1.0,1.0),2),
 }
 

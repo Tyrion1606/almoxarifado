@@ -307,9 +307,21 @@ window.CATALOG = {
       "origin": "Relato do usuário + conversa “Comparar placas STM32” · CEU6 Long confirmada",
       "oscillator": "HSI interno 16 MHz + PLL; cristal conforme esquema",
       "package": "STM32G474CEU6 · UFQFPN-48",
-      "pinout": "g474-long-pinout.png",
-      "pinout_credit": "WeAct Studio · render oficial da placa Long",
+      "pinout": "g474-long-pinout-simple.png",
+      "pinout_credit": "Desenhos do almoxarifado · simples: colunas sobre o render oficial WeAct · completa: ST DS12288 Rev 6 (tabelas 12 e 13), esquema WeAct e foto da placa do usuário · pinos numerados pelo UFQFPN48",
       "pinout_source": "g474-long-pinout.pdf",
+      "pinouts": [
+        {
+          "file": "g474-long-pinout-simple.png",
+          "notice": "",
+          "title": "Simples · GPIO e funções principais"
+        },
+        {
+          "file": "g474-long-pinout-full.png",
+          "notice": "",
+          "title": "Completa · todas as funções (AF0–AF15 com número + funções adicionais)"
+        }
+      ],
       "programmer": "ST-Link V2 · SWD; USB DFU ou UART conforme bootloader",
       "pwm": "HRTIM + timers convencionais",
       "quantity": 1,
@@ -344,9 +356,21 @@ window.CATALOG = {
       "origin": "Modelo informado pelo usuário; documentação oficial WeAct H7R3Zx",
       "oscillator": "Núcleo até 600 MHz via PLL",
       "package": "STM32H7R3Z8J6 · UFBGA-144",
-      "pinout": "h7-pinout.png",
-      "pinout_credit": "WeAct Studio · render oficial da placa",
+      "pinout": "h7-pinout-simple.png",
+      "pinout_credit": "Desenhos do almoxarifado a partir do ST DS14360 Rev 3 (tabelas 19 e 20), do esquema e do desenho mecânico WeAct H7R3Zx V1.0 · pinos do CI identificados pela esfera UFBGA144 SMPS GP",
       "pinout_source": "h7-pinout.pdf",
+      "pinouts": [
+        {
+          "file": "h7-pinout-simple.png",
+          "notice": "",
+          "title": "Simples · GPIO e funções principais"
+        },
+        {
+          "file": "h7-pinout-full.png",
+          "notice": "",
+          "title": "Completa · todas as funções (AF0–AF15 com número + funções adicionais)"
+        }
+      ],
       "programmer": "SWD com ferramentas atualizadas para H7RS; verificar suporte do ST-Link V2",
       "pwm": "Timers avançados e gerais",
       "quantity": 1,

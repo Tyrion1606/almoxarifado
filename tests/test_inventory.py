@@ -41,6 +41,21 @@ class InventoryTests(unittest.TestCase):
    self.assertTrue(blob.startswith(b'\x89PNG\r\n\x1a\n'),source['file'])
    self.assertEqual(hashlib.sha256(blob).hexdigest(),source['sha256'])
    self.assertTrue(source['credit'] and source['license'],source['file'])
+ def test_g474_pinout_versions(self):
+  # Simples e completa aparecem empilhadas, ambas com numeração UFQFPN48 (docs/G474-PINOUT.md).
+  g474={p['id']:p for p in self.data['components']}['g474']
+  self.assertEqual([p['file'] for p in g474['pinouts']],['g474-long-pinout-simple.png','g474-long-pinout-full.png'])
+  self.assertEqual(g474['pinout'],g474['pinouts'][0]['file'])
+  for p in g474['pinouts']:
+   self.assertTrue((ROOT/'assets/pinouts'/p['file']).read_bytes().startswith(b'\x89PNG\r\n\x1a\n'),p['file'])
+  self.assertEqual(sorted(p.name for p in (ROOT/'assets/pinouts').glob('g474*.png')),['g474-long-pinout-full.png','g474-long-pinout-simple.png'])
+ def test_h7r3_pinout_versions(self):
+  # Simples e completa empilhadas; pinos do CI pela esfera UFBGA144 SMPS GP (docs/H7R3-PINOUT.md).
+  h7={p['id']:p for p in self.data['components']}['h7r3']
+  self.assertEqual([p['file'] for p in h7['pinouts']],['h7-pinout-simple.png','h7-pinout-full.png'])
+  self.assertEqual(h7['pinout'],h7['pinouts'][0]['file'])
+  for p in h7['pinouts']:
+   self.assertTrue((ROOT/'assets/pinouts'/p['file']).read_bytes().startswith(b'\x89PNG\r\n\x1a\n'),p['file'])
  def test_sql_roundtrip(self):
   restored=sqlite3.connect(':memory:');restored.executescript((ROOT/'data/inventory.sql').read_text())
   for table,key in [('components','id'),('glossary','term'),('tools','id'),('categories','id')]:

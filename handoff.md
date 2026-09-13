@@ -47,6 +47,8 @@ O plugin Sites foi solicitado e suas orientações de interface e SQLite foram c
 | `data/pinout_sources.json` | URL, SHA-256, crédito e licença desses desenhos |
 | `docs/evidence/blackpill-variant.png` | Print fornecido pelo usuário da variante adquirida |
 | `docs/SOURCES.md` | Proveniência, créditos e versões documentais |
+| `docs/H7R3-PINOUT.md` | Pinagens simples/completa da H7R3, esferas UFBGA144 SMPS GP, paridade das fileiras dos headers duplos e tabela de conferência |
+| `docs/G474-PINOUT.md` | Pinagens simples/completa da G474, regra UFQFPN48 × LQFP48, histórico da correção e tabela pino a pino |
 | `scripts/export.py` | Atualiza e confere catálogo JS e dump SQL |
 | `scripts/seed.py` | Restaura banco ausente a partir do dump; recusa sobrescrita |
 | `scripts/download_sources.py` | Lista explícita de downloads públicos; uso de manutenção |
@@ -70,6 +72,7 @@ SQLite `PRAGMA user_version=1`.
   - `clock`: número em MHz; `ram`: inteiro em bytes.
   - `flash`, `external`, `adc`, `gpio`, etc.: texto com unidades, qualificações e escopo.
   - `datasheet`, `pinout`, `pinout_source`, `schematic`: nomes de arquivos locais.
+  - `pinouts` (opcional): lista ordenada `{file, title, notice}` exibida uma abaixo da outra na aba Pinagem; `pinout` continua sendo o primeiro arquivo. Hoje G474 (`g474-long-pinout-simple.png`, `-full.png`) e H7R3 (`h7-pinout-simple.png`, `-full.png`) usam.
   - `origin`, `notes`, `status`, `evidence`, `variant`: contexto do acervo.
 - `glossary(term, meaning, short, detail, example)`: 91 entradas; significado completo, explicação curta, aprofundamento e exemplo no acervo.
 - `tools(id, name, quantity, description, compatibility)`: acessórios de programação/conexão.
@@ -112,7 +115,7 @@ Em 12/09/2026 o usuário confirmou que as três BluePill são STM32F103C8T6, dua
 - SRAM em bytes no banco; interface converte para KiB (kibibytes, 1.024 bytes). MiB = 1.048.576 bytes. Anúncios frequentemente usam KB/MB para capacidades binárias.
 - BlackPill: 512 KiB internos, 128 KiB SRAM, 8 MiB de Flash SPI externa conforme confirmação do usuário. F411 não tem DAC nem CAN. O clock máximo é 100 MHz; 96 MHz é configuração do TCC, 25 MHz é cristal externo.
 - Flash externa montada não prova que o logger esteja implementado no firmware do TCC. Não mudar essa afirmação sem revisar o firmware.
-- G474CEU6: 512 KiB Flash; SRAM 96 + 32 KiB CCM. Long é formato físico; não implica mais pinos que a versão compacta CEU6. O diagrama incluído é QFN48 Long, não QFP48 nem compacto.
+- G474CEU6: 512 KiB Flash; SRAM 96 + 32 KiB CCM. Long é formato físico; não implica mais pinos que a versão compacta CEU6. O diagrama incluído é QFN48 Long, não QFP48 nem compacto. **Número de pino do CI = coluna UFQFPN48 da tabela 12 do DS12288**, nunca LQFP48 (o LQFP48 nem tem PC4/PC6/PC10/PC11 e desloca a numeração a partir de PB0). Versões antigas do desenho simples tinham 13 números errados (PB10, VREF+, PB11–PB15, PC6, PA8–PA12); as duas imagens atuais estão corrigidas e conferidas. Detalhes e tabela em `docs/G474-PINOUT.md`.
 - H7R3: 64 KiB de Flash interna podem hospedar boot e/ou código; não tratar como zero Flash nem como 8 MB internos. A placa WeAct adiciona 8 MB externos. H7R3 **não possui DAC**; fonte usada DS14360 Rev 3. Possui Cortex-M7 com FPU de dupla precisão. Não importar recursos gráficos de H7R7 indiscriminadamente para H7R3.
 - GPIO, ADC, DAC e interfaces da família não equivalem automaticamente a sinais expostos na placa nem disponíveis simultaneamente. Verificar encapsulamento e funções alternativas.
 - PIC12: GP3/RA3 somente entrada. PIC16F887: RE3 somente entrada. PIC12F675 não tem PWM de hardware. PIC12F1501 usa HEF, não EEPROM clássica.
@@ -122,9 +125,13 @@ Em 12/09/2026 o usuário confirmou que as três BluePill são STM32F103C8T6, dua
 
 ## 7. Interface e documentação interativa
 
-`app.js` renderiza as linhas a partir do catálogo, usando escape de conteúdo. Delegação de eventos mantém as ações disponíveis após rerender. A seleção de comparação está num Set em memória. Tabela ordena por nome ou clock; filtros por família e tipo; busca percorre os campos do item.
+`app.js` renderiza as linhas a partir do catálogo, usando escape de conteúdo. Delegação de eventos mantém as ações disponíveis após rerender. A seleção de comparação está num Set em memória. A tabela oferece 17 colunas configuráveis, que podem ser exibidas, ocultadas, reordenadas e restauradas; preferências ficam no `localStorage` do navegador. Cabeçalhos com seta ordenam as linhas. Filtros por família e tipo e busca percorrem os campos do item.
+
+As métricas de processamento exibidas são a classe editorial e os aceleradores confirmados para cada componente. Benchmarks e medições comparáveis serão incluídos somente quando houver valores reais no inventário.
 
 Cada linha abre uma seção com abas: especificações, pinagem, datasheet comentado e original. Abas respondem às setas, Home e End. Ajuda rápida aparece por hover/foco; clique abre um dialog nativo que oferece fechamento e Escape. Termos também podem ser acessados por toque. Layout possui adaptações até telas estreitas e rolagem horizontal da tabela.
+
+**Largura e tipografia (12/09/2026):** a tabela rola na horizontal dentro de `.table-wrap`, que tem `position:relative`. Sem isso, o `.sr-only` do cabeçalho (`position:absolute`) escapava e alargava a página até ~2.983 px. O detalhamento (`.detail-cell>.detail`) é `position:sticky;left:0` e usa a largura visível da tabela via `--detail-width`, atualizada por `fitDetailWidth()` a cada `drawRows` e `resize`. As imagens de pinagem usam `max-width:100%` e `max-height:min(750px,80vh)`, sem faixas brancas. A interface fora do detalhamento e a tabela visível foram ampliadas (tabela 13,5 px, cabeçalho 12 px, título 40 px); as colunas usam `columnWidth()` = largura base × 1,15. O detalhamento mantém os tamanhos originais: `td.detail-cell` fixa 12 px e os seletores ampliados excluem `.detail-cell`. Conferido no Chrome em 1920, 1440, 1100, 700 e ~480 px: largura da página igual à da janela.
 
 **Datasheet comentado:** arquivo JS por PDF, carregado sob demanda por tag script clássica (compatível com `file://`). Contém páginas de texto extraídas por `pdftotext -layout`, navegação e busca circular por página. Um reconhecedor insensível a maiúsculas transforma os 91 termos cadastrados em botões. Não é um tradutor, modelo de linguagem nem glossário de todas as palavras dos PDFs. Subsímbolos como VDD com formatação especial ou texto dentro de desenhos podem não casar com o reconhecedor.
 
@@ -132,7 +139,7 @@ Cada linha abre uma seção com abas: especificações, pinagem, datasheet comen
 
 **Pinagem:** recortes de páginas e imagens oficiais, sem desenho inventado ou arte gerada por IA. `scripts/prepare_pinouts.py` descarta cabeçalho, rodapé, espaço vazio e encapsulamentos que não estão no acervo, e empilha diagrama e tabela de funções quando o fabricante as publica em páginas separadas. Cada ficha mostra o crédito da imagem, gravado em `pinout_credit`.
 
-Os quatro PICs trazem o diagrama PDIP mais a tabela de alocação de funções. Uno e Nano usam a folha oficial Arduino, inclusive a legenda de cores e o aviso de licença. BluePill passou a usar *The Generic STM32F103 Pinout Diagram* de Rasmus Friis Kjeldsen, CC BY-SA 4.0 — desenho da placa, com funções alternativas e limites elétricos; a imagem mostra a variante micro-USB, e duas das três unidades são USB-C. Obra derivada desse desenho precisa manter a mesma licença. G474 Long e H7R3 usam os renders oficiais WeAct, que trazem os nomes dos pinos sobre a placa real; o desenho mecânico de contorno continua acessível como documento completo. A pinagem da BlackPill não foi alterada a pedido do usuário: continua sendo o desenho WeAct v2.0+ de Richard Balint, byte a byte igual, com anotações de família — o datasheet F411 prevalece para recursos do chip.
+Os quatro PICs trazem o diagrama PDIP mais a tabela de alocação de funções. Uno e Nano usam a folha oficial Arduino, inclusive a legenda de cores e o aviso de licença. BluePill passou a usar *The Generic STM32F103 Pinout Diagram* de Rasmus Friis Kjeldsen, CC BY-SA 4.0 — desenho da placa, com funções alternativas e limites elétricos; a imagem mostra a variante micro-USB, e duas das três unidades são USB-C. Obra derivada desse desenho precisa manter a mesma licença. **Exceção à regra de não redesenhar:** a pedido do usuário, a H7R3 mostra `h7-pinout-simple.png` e, abaixo, `h7-pinout-full.png`, desenhos do almoxarifado no mesmo estilo dos da G474. Pino do CI = esfera da coluna UFBGA144 SMPS GP (não a GFx); headers duplos com paridade invertida: externa = par em P1/P3, ímpar em P2/P4; LTDC, ETH MII e Hexa-SPI omitidos por não existirem no Z8J6. Leia `docs/H7R3-PINOUT.md`. O recorte `h7-pinout.png` continua gerado por `prepare_pinouts.py`, mas não é exibido. A G474 Long mostra dois desenhos feitos para o almoxarifado, empilhados pelo campo `pinouts`: `g474-long-pinout-simple.png` (colunas sobre o render WeAct; funções principais) e, abaixo, `g474-long-pinout-full.png` (vetorial; todas as AF0–AF15 com número, funções adicionais, tolerância FT/TT e pinos fora dos headers). Ambas usam a numeração UFQFPN48 conferida na tabela 12 e no esquema. São os únicos arquivos de pinagem da G474; o antigo recorte `g474-long-pinout.png` e a receita dele em `prepare_pinouts.py` foram removidos. Leia `docs/G474-PINOUT.md` antes de alterar essas imagens. A pinagem da BlackPill não foi alterada a pedido do usuário: continua sendo o desenho WeAct v2.0+ de Richard Balint, byte a byte igual, com anotações de família — o datasheet F411 prevalece para recursos do chip.
 
 ## 8. Manutenção
 
@@ -187,10 +194,10 @@ Comitar somente arquivos desta tarefa. `git pull` recebe atualizações, `git pu
 - 9 testes de dados passaram: integridade SQLite, chaves estrangeiras, quantidades, variantes confirmadas, todos os caminhos locais, hashes de todos os PDFs, hashes/crédito/licença das imagens de pinagem, existência dos textos, reconstrução por SQL, exportação determinística e ausência de dependências de rede de execução.
 - Testes de interação passaram com LinkeDOM: busca com/sem resultado, filtro de família, expansão, caminhos de pinagem e PDF, comparação/diferenças/remoção, busca no glossário, modal, ferramentas, leitor e busca/paginação/limites.
 - Sintaxe JavaScript verificada pelo Node.
+- Pinagem G474 (12/09/2026): 10 testes de dados e o teste de interface passaram. `test_g474_pinout_versions` confere a ordem simples → completa, os PNGs e que não existam outros arquivos de pinagem da G474; o teste de interface confere as duas imagens empilhadas na aba. Números UFQFPN48 conferidos contra a tabela 12 do DS12288 e o U1 do esquema WeAct.
 - Todas as prévias de pinagem foram inspecionadas como imagens locais depois do recorte: os quatro PICs com diagrama e tabela, BluePill, Uno, Nano, G474 Long, H7R3 e a BlackPill inalterada. O arquivo da BlackPill foi conferido por hash antes e depois de rodar o gerador.
 - Os PDFs são snapshots técnicos, não todos as revisões mais recentes. Seu hash, data de obtenção e número de páginas estão registrados; não afirmar revisão de todas as páginas ou todas as especificações elétricas.
-- **Validação visual de navegador pendente:** Chrome recusou `file:///home/davi/repos/almoxarifado/index.html` pela política da ferramenta de navegação. Nenhuma tentativa de contorno foi feita. Não houve teste visual em navegador real, responsividade renderizada nem interação real com o visualizador PDF. LinkeDOM testa estrutura e lógica, não layout nem comportamento nativo do navegador.
-- Um teste inicial de servidor local foi impedido pela restrição de sockets da sandbox. Nenhum servidor ficou rodando; nenhuma porta é necessária para o uso final.
+- Validação visual em navegador real concluída em 12/09/2026 por servidor HTTP local temporário, restrito a `127.0.0.1:8765`: tabela larga, menu aberto, ocultar coluna, restaurar e persistência após recarregar foram conferidos. O servidor foi encerrado; nenhuma porta é necessária para o uso normal por `file://`.
 
 ## 10. Próximos passos e limites concretos
 

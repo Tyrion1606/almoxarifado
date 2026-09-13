@@ -23,7 +23,7 @@ Documentos obtidos em 12/09/2026. Os originais permanecem sem alterações; as p
 
 ## Pinagens
 
-As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho e sem arte gerada. A numeração é a física do PDF (começando em 1), não a impressa. `scripts/prepare_pinouts.py` reproduz cada recorte a partir dos arquivos versionados.
+As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho e sem arte gerada. As exceções são a G474 Long e a H7R3, que usam desenhos próprios descritos em [G474-PINOUT.md](G474-PINOUT.md) e [H7R3-PINOUT.md](H7R3-PINOUT.md). A numeração é a física do PDF (começando em 1), não a impressa. `scripts/prepare_pinouts.py` reproduz cada recorte a partir dos arquivos versionados.
 
 | Componente | Fonte | Trecho usado |
 | --- | --- | --- |
@@ -35,8 +35,8 @@ As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho 
 | Uno | uno-pinout.pdf | p. 1 |
 | Nano | nano-pinout.pdf | p. 1 |
 | BlackPill | blackpill-pinout.pdf | p. 1, página inteira e inalterada |
-| G474 Long | weact-g474-long-board.png | recorte da placa |
-| H7R3 | weact-h7r3-board.png | recorte da placa |
+| G474 Long | stm32g474.pdf (tabelas 12 e 13) + g474-long-schematic.pdf + weact-g474-long-board.png | desenhos próprios empilhados: `g474-long-pinout-simple.png` (visão rápida) e `g474-long-pinout-full.png` (todas as funções), ambos com numeração UFQFPN48 conferida. Ver [G474-PINOUT.md](G474-PINOUT.md) |
+| H7R3 | stm32h7r3.pdf (tabelas 2, 3, 19 e 20) + h7-schematic.pdf + h7-pinout.pdf | desenhos próprios empilhados: `h7-pinout-simple.png` e `h7-pinout-full.png`, com esferas UFBGA144 SMPS GP. Ver [H7R3-PINOUT.md](H7R3-PINOUT.md) |
 
 Desenhos de pinagem sem PDF oficial ficam em `assets/pinouts/sources/`. URL, SHA-256, crédito e licença de cada um estão em `data/pinout_sources.json`.
 
@@ -44,7 +44,7 @@ Desenhos de pinagem sem PDF oficial ficam em `assets/pinouts/sources/`. URL, SHA
 
 - Microchip / Atmel: datasheets dos PICs e ATmega328P. Avisos de direitos preservados nos PDFs.
 - STMicroelectronics: datasheets STM32; algumas cópias distribuídas no repositório oficial WeAct.
-- WeAct Studio: diagramas, esquemas, renders e documentação de suas placas. BlackPill pinout: Richard Balint, conforme crédito no próprio desenho. As pinagens da G474 Long e da H7R3 são recortes dos renders oficiais publicados nos repositórios da WeAct.
+- WeAct Studio: diagramas, esquemas, renders e documentação de suas placas. BlackPill pinout: Richard Balint, conforme crédito no próprio desenho. As pinagens da H7R3 (simples e completa) são desenhos do almoxarifado a partir do DS14360 (STMicroelectronics), do esquema e do desenho mecânico WeAct. As pinagens da G474 Long (simples e completa) são desenhos do almoxarifado: a simples usa o render oficial WeAct como fundo, e a completa usa dados do DS12288 (STMicroelectronics), o esquema WeAct e uma foto da placa do usuário.
 - BluePill: *The Generic STM32F103 Pinout Diagram*, de Rasmus Friis Kjeldsen (reblag.dk/stm32), publicado no Wikimedia Commons sob Creative Commons Attribution-ShareAlike 4.0. Usado sem alteração; o crédito e a licença aparecem na aba de pinagem e em `data/pinout_sources.json`. Obras derivadas deste desenho precisam manter a mesma licença.
 - Arduino: pinouts Uno e Nano, licença Creative Commons Attribution-ShareAlike 4.0 indicada nos documentos. As prévias mantêm os créditos da página.
 - Print da variante BlackPill: fornecido pelo usuário nesta tarefa; imagem de anúncio usada apenas como evidência de variante, não como fonte de limites elétricos.
