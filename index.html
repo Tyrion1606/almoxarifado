@@ -1,1 +1,48 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Almoxarifado · Componentes</title><meta name="description" content="Seu acervo de microcontroladores, pinagens e documentação de bancada."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23165c48'/%3E%3Cpath d='M10 10h20v20H10zM15 15h10v10H15z' fill='none' stroke='%23eddfb6' stroke-width='2'/%3E%3C/svg%3E"><link rel="stylesheet" href="assets/style.css"><script defer src="data/catalog.js"></script><script defer src="assets/app.js"></script></head><body><aside class="sidebar"><a class="brand" href="#catalogo"><span class="brand-icon">▦</span> almoxarifado<span class="brand-dot">.</span></a><div class="space-label">BANCADA PESSOAL</div><nav aria-label="Principal"><button data-view="catalogo" class="active">▤ <span>Componentes</span><span class="nav-count">10</span></button><button data-view="comparar">⇄ <span>Comparar</span><span id="compare-count" class="nav-count">0</span></button><button data-view="glossario">▧ <span>Documentação</span></button><button data-view="ferramentas">⌁ <span>Gravação e conexão</span></button></nav><div class="sidebar-bottom"><span class="live-dot"></span> Acervo local<br><small>Seu próximo projeto começa aqui.</small></div></aside><div class="shell"><header><span>Meu acervo <span class="slash">/</span> <span id="breadcrumb">Microcontroladores</span></span><span class="offline">● Disponível offline</span></header><main id="main"><div class="page-heading"><div><div class="eyebrow">DO COMPONENTE À IDEIA</div><h1>Microcontroladores</h1><p>Conheça o que você tem. Escolha o que seu projeto precisa.</p></div><span class="edition">CATÁLOGO<br><b>01 / MICROCONTROLADORES</b></span></div><section class="stats" aria-label="Resumo do acervo"><div><span>Modelos no acervo</span><strong>10 <small>modelos</small></strong></div><div><span>Chips + placas</span><strong>19 <small>unidades*</small></strong></div><div><span>Famílias</span><strong>03 <small>PIC · AVR · STM32</small></strong></div><div><span>Documentação</span><strong>100% <small>local</small></strong></div></section><div class="toolbar"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Buscar componente, recurso ou aplicação…" aria-label="Buscar componentes"></label><select id="family" aria-label="Filtrar família"><option value="">Todas as famílias</option><option>PIC</option><option>AVR</option><option>STM32</option></select><select id="kind" aria-label="Filtrar formato"><option value="">Chips e placas</option><option value="chip">Somente chips</option><option value="placa">Somente placas</option></select></div><div class="table-caption"><span id="result-count">10 componentes</span><span>Selecione para comparar · Expanda para explorar</span></div><div class="table-wrap"><table id="inventory"><thead><tr><th><span class="sr-only">Comparar</span></th><th><button data-sort="name">Componente ↕</button></th><th>Família</th><th>Qtd.</th><th><button data-sort="clock">Clock ↕</button></th><th><button data-term="Flash">Flash ⓘ</button></th><th><button data-term="SRAM">SRAM ⓘ</button></th><th><button data-term="ADC">ADC ⓘ</button></th><th>Lógica</th><th></th></tr></thead><tbody id="rows"></tbody></table></div><p class="footnote">* As 10 unidades PIC são estimativas do inventário. Duas placas WeAct foram adquiridas recentemente.</p><section class="bench-note"><span>↗</span><div><b>Uma ficha técnica que você pode entender.</b><p>Passe o cursor sobre um termo sublinhado para uma explicação rápida. Clique para aprofundar.</p></div><button data-view="glossario">Explorar documentação →</button></section></main><footer>ALMOXARIFADO <span>Inventário pessoal · Fontes do fabricante em cada ficha</span></footer></div><dialog id="term-dialog"><button class="close" aria-label="Fechar documentação">×</button><div id="term-content"></div></dialog><div id="tooltip" role="tooltip" hidden></div><div id="selection-bar" hidden></div><noscript>Ative JavaScript para consultar o catálogo. Os datasheets permanecem disponíveis na pasta assets/documents.</noscript></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Almoxarifado · Componentes</title>
+  <meta name="description" content="Seu acervo de microcontroladores, pinagens e documentação de bancada.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230f7a55'/%3E%3Cpath d='M10 10h20v20H10zM15 15h10v10H15z' fill='none' stroke='%23fde68a' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- Scripts clássicos (não módulos) para funcionar por file://; a ordem importa. -->
+  <script defer src="data/catalog.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/documentation.js"></script>
+  <script defer src="assets/js/table.js"></script>
+  <script defer src="assets/js/history.js"></script>
+  <script defer src="assets/js/reader.js"></script>
+  <script defer src="assets/js/detail.js"></script>
+  <script defer src="assets/js/compare.js"></script>
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#catalogo"><span class="brand-icon">▦</span> almoxarifado<span class="brand-dot">.</span></a>
+    <div class="space-label">BANCADA PESSOAL</div>
+    <nav aria-label="Principal">
+      <button data-view="catalogo" class="active"><span class="nav-icon">▤</span><span>Componentes</span><span id="component-count" class="nav-count"></span></button>
+      <button data-view="comparar"><span class="nav-icon">⇄</span><span>Comparar</span><span id="compare-count" class="nav-count">0</span></button>
+      <button data-view="glossario"><span class="nav-icon">▧</span><span>Documentação</span></button>
+      <button data-view="ferramentas"><span class="nav-icon">⌁</span><span>Gravação e conexão</span></button>
+    </nav>
+    <div class="sidebar-bottom"><span class="live-dot"></span> <span id="mode-label">Acervo local</span><small id="mode-hint">Seu próximo projeto começa aqui.</small></div>
+  </aside>
+
+  <div class="shell">
+    <header>
+      <span>Meu acervo <span class="slash">/</span> <span id="breadcrumb">Microcontroladores</span></span>
+      <span id="mode-badge" class="mode-badge">● Consulta offline</span>
+    </header>
+    <main id="main"></main>
+    <footer>ALMOXARIFADO <span>Inventário pessoal · Fontes do fabricante em cada ficha</span></footer>
+  </div>
+
+  <dialog id="term-dialog"><button class="close" aria-label="Fechar documentação">×</button><div id="term-content"></div></dialog>
+  <div id="tooltip" role="tooltip" hidden></div>
+  <div id="selection-bar" hidden></div>
+  <noscript>Ative JavaScript para consultar o catálogo. Os datasheets permanecem disponíveis na pasta assets/documents.</noscript>
+</body>
+</html>

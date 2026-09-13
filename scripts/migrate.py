@@ -1,0 +1,401 @@
+"""Aplica, em transação, as migrações pendentes do banco (PRAGMA user_version).
+
+Uso: python3 scripts/migrate.py   (depois: python3 scripts/export.py)
+
+Cada migração é um registro histórico: não altere uma migração já aplicada;
+acrescente uma nova função e registre-a em MIGRATIONS.
+"""
+from __future__ import annotations
+
+import json
+import sqlite3
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import db  # noqa: E402
+
+
+# ---------------------------------------------------------------- versão 2
+# Histórico de unidades (disponível / em uso / total) e conteúdo que antes
+# ficava fixo em assets/app.js: colunas da tabela, campos da ficha, categorias
+# do glossário, guias de pinos, classes de processamento e famílias.
+
+FAMILIES = [
+    ('PIC', 'PIC', 'Microchip PIC de 8 bits', 'orange'),
+    ('AVR', 'AVR', 'Microchip AVR (Arduino)', 'teal'),
+    ('STM32', 'STM32', 'ST Microelectronics Arm Cortex-M', 'blue'),
+]
+
+MOVEMENT_TYPES = [
+    # id, rótulo no histórico, texto no formulário, efeito no total, efeito em uso, cor, explicação
+    ('compra', 'Compra', 'Comprei mais', 1, 0, 'green', 'Unidades novas entram como disponíveis.'),
+    ('uso', 'Em uso', 'Coloquei em uso', 0, 1, 'blue', 'Unidades disponíveis passam a ficar ocupadas em um projeto.'),
+    ('devolucao', 'Liberada', 'Parei de usar', 0, -1, 'teal', 'Unidades em uso voltam a ficar disponíveis.'),
+    ('descarte', 'Descarte', 'Descartei (quebrou, perdi, doei)', -1, 0, 'red', 'Unidades disponíveis saem do acervo.'),
+    ('descarte_em_uso', 'Descarte em uso', 'Descartei uma que estava em uso', -1, -1, 'red', 'Unidades que estavam em uso saem do acervo.'),
+    ('entrada', 'Entrada', 'Entrada sem compra (contagem, presente)', 1, 0, 'slate', 'Cadastro inicial ou unidades recebidas sem compra.'),
+]
+
+# Quantidades da versão 1 viram movimentações; datas conforme a origem de cada registro.
+INITIAL_MOVEMENTS = [
+    ('pic16f887', 'entrada', 2, '2026-05-07', 'Quantidade estimada no inventário do Obsidian.'),
+    ('pic12f675', 'entrada', 3, '2026-05-07', 'Quantidade estimada no inventário do Obsidian.'),
+    ('pic12f683', 'entrada', 2, '2026-05-07', 'Quantidade estimada no inventário do Obsidian.'),
+    ('pic12f1501', 'entrada', 3, '2026-05-07', 'Quantidade estimada no inventário do Obsidian.'),
+    ('uno', 'entrada', 1, '2026-09-12', 'Cadastro inicial do catálogo.'),
+    ('uno', 'descarte', 1, '2026-09-13', 'Quebrou sem querer.'),
+    ('nano', 'entrada', 2, '2026-09-12', 'Cadastro inicial: um soldado em placa de circuito impresso (PCB) e outro solto.'),
+    ('nano', 'uso', 1, '2026-09-12', 'Unidade soldada em placa de circuito impresso (PCB).'),
+    ('bluepill', 'entrada', 3, '2026-09-12', 'Cadastro inicial: duas com USB-C e uma com micro-USB.'),
+    ('blackpill', 'entrada', 1, '2026-09-12', 'Cadastro inicial do catálogo.'),
+    ('blackpill', 'uso', 1, '2026-09-12', 'Montagem do TCC.'),
+    ('g474', 'compra', 1, '2026-09-12', 'Recém-adquirida; data exata da compra não registrada.'),
+    ('h7r3', 'compra', 1, '2026-09-12', 'Recém-adquirida; data exata da compra não registrada.'),
+]
+
+SPEC_FIELDS = [
+    # chave, rótulo, formato, na ficha, na comparação
+    ('variant', 'Variante da placa', 'text', 1, 1),
+    ('cpu', 'CPU', 'text', 1, 1),
+    ('clock', 'Clock máximo', 'mhz', 1, 1),
+    ('oscillator', 'Oscilador da placa / chip', 'text', 1, 1),
+    ('flash', 'Flash interna', 'text', 1, 1),
+    ('external', 'Flash externa', 'text', 1, 1),
+    ('ram', 'SRAM', 'bytes', 1, 1),
+    ('eeprom', 'EEPROM / HEF', 'text', 1, 1),
+    ('package', 'Encapsulamento', 'text', 1, 1),
+    ('gpio', 'GPIO', 'text', 1, 1),
+    ('adc', 'ADC', 'text', 1, 1),
+    ('dac', 'DAC', 'text', 1, 1),
+    ('pwm', 'PWM', 'text', 1, 1),
+    ('timers', 'Timer', 'text', 1, 1),
+    ('serial', 'Comunicação', 'text', 1, 1),
+    ('voltage', 'Lógica / alimentação de referência', 'text', 1, 1),
+    ('temperature', 'Temperatura', 'text', 1, 1),
+    ('programmer', 'Gravação', 'text', 1, 1),
+    ('special', 'Outros recursos', 'text', 1, 1),
+    ('use', 'Aplicações', 'text', 0, 1),
+    ('notes', 'Observações', 'text', 0, 1),
+]
+
+COLUMN_GROUPS = [
+    ('acervo', 'Acervo', 'green'),
+    ('desempenho', 'Desempenho e memória', 'violet'),
+    ('perifericos', 'Periféricos', 'blue'),
+    ('eletrica', 'Elétrica', 'amber'),
+    ('detalhes', 'Detalhes', 'slate'),
+]
+
+TABLE_COLUMNS = [
+    # chave, rótulo, grupo, largura, formato, campo, unidade, casas, termo, ajuda
+    ('name', 'Componente', 'acervo', 270, 'component', None, None, None, None, None),
+    ('family', 'Família', 'acervo', 90, 'family', None, None, None, None, None),
+    ('stock', 'Disponível / total', 'acervo', 130, 'stock', None, None, None, None,
+     'Unidades disponíveis / total no acervo. Registre compras, uso e descartes na aba Histórico.'),
+    ('processing_class', 'Classe de processamento', 'desempenho', 178, 'class', None, None, None, None, None),
+    ('mips_peak', 'Pico MIPS', 'desempenho', 144, 'metric', None, 'MIPS', 0, 'MIPS',
+     'Milhões de instruções por segundo. Usado aqui somente para PIC e ATmega328P.'),
+    ('coremark', 'CoreMark', 'desempenho', 144, 'metric', None, None, None, 'CoreMark',
+     'Pontuação do benchmark CoreMark. Maior é melhor.'),
+    ('coremark_per_mhz', 'CoreMark/MHz', 'desempenho', 167, 'metric', None, None, 2, 'CoreMark',
+     'CoreMark dividido pela frequência em megahertz.'),
+    ('dmips', 'DMIPS', 'desempenho', 121, 'metric', None, None, 0, 'DMIPS',
+     'Resultado do benchmark Dhrystone. Maior é melhor.'),
+    ('dmips_per_mhz', 'DMIPS/MHz', 'desempenho', 144, 'metric', None, None, 2, 'DMIPS',
+     'DMIPS dividido pela frequência em megahertz.'),
+    ('relative_bluepill', 'Relativo à BluePill', 'desempenho', 178, 'metric', None, '×', 2, None,
+     'DMIPS do componente dividido pelos 90 DMIPS da BluePill.'),
+    ('accelerators', 'Aceleradores', 'desempenho', 253, 'annotated', None, None, None, None, None),
+    ('cpu', 'Núcleo / recursos', 'desempenho', 218, 'text', None, None, None, 'CPU', None),
+    ('clock', 'Clock', 'desempenho', 106, 'mhz', None, None, None, 'Clock', None),
+    ('flash', 'Flash', 'desempenho', 121, 'annotated', 'flash_short', None, None, 'Flash', None),
+    ('ram', 'SRAM', 'desempenho', 121, 'bytes', None, None, None, 'SRAM', None),
+    ('eeprom', 'EEPROM / HEF', 'desempenho', 167, 'annotated', None, None, None, 'EEPROM', None),
+    ('gpio', 'GPIO', 'perifericos', 201, 'annotated', None, None, None, 'GPIO', None),
+    ('adc', 'ADC', 'perifericos', 213, 'annotated', None, None, None, 'ADC', None),
+    ('dac', 'DAC', 'perifericos', 173, 'annotated', None, None, None, 'DAC', None),
+    ('pwm', 'PWM', 'perifericos', 201, 'annotated', None, None, None, 'PWM', None),
+    ('timers', 'Temporizadores', 'perifericos', 242, 'annotated', None, None, None, 'Timer', None),
+    ('serial', 'Comunicação', 'perifericos', 282, 'annotated', None, None, None, None, None),
+    ('voltage', 'Lógica', 'eletrica', 115, 'text', None, None, None, None, None),
+]
+
+PROCESSING_CLASSES = [
+    ('Essencial', 1), ('Básico', 2), ('Intermediário', 3),
+    ('Avançado', 4), ('Avançado especializado', 5), ('Alto desempenho', 6),
+]
+
+COMPONENT_EXTRAS = {
+    # subtítulo na tabela, Flash resumida, classe, aceleradores, guia de pinos
+    'pic16f887': ('PDIP-40', '14 KiB', 'Essencial', 'Nenhum dedicado', 'pic'),
+    'pic12f675': ('PDIP-8', '1,75 KiB', 'Essencial', 'Nenhum dedicado', 'pic12'),
+    'pic12f683': ('PDIP-8', '3,5 KiB', 'Essencial', 'Nenhum dedicado', 'pic12'),
+    'pic12f1501': ('PDIP-8', '1,75 KiB', 'Essencial', 'CLC · NCO · CWG', 'pic12'),
+    'uno': ('Placa · ATmega328P', '32 KiB', 'Básico', 'Nenhum dedicado', 'avr'),
+    'nano': ('Placa · ATmega328P', '32 KiB', 'Básico', 'Nenhum dedicado', 'avr'),
+    'bluepill': ('STM32F103C8T6', '64 KiB', 'Intermediário', 'Nenhum dedicado', 'stm32'),
+    'blackpill': ('STM32F411CEU6', '512 KiB', 'Avançado', 'FPU · DSP', 'stm32'),
+    'g474': ('STM32G474CEU6', '512 KiB', 'Avançado especializado', 'FPU · DSP · CORDIC · FMAC', 'stm32'),
+    'h7r3': ('STM32H7R3Z8J6', '64 KiB de boot Flash', 'Alto desempenho', 'FPU dupla precisão · DSP · cache · CORDIC', 'stm32'),
+}
+
+BLUEPILL_PINOUT_NOTICE = ('Diagrama genérico da placa BluePill STM32F103. As três unidades são STM32F103C8T6, duas com '
+                          'conector USB-C e uma com micro-USB; o desenho mostra a variante micro-USB. Confira a posição '
+                          'do conector e dos jumpers BOOT antes de ligar.')
+BLUEPILL_COREMARK_NOTE = ('Referência publicada para o STM32F103RB da mesma família; não é uma medição do STM32F103C8 exato.')
+
+PIC12_PINS = [
+    ('1 · VDD', 'VDD'), ('2 · GP5 / RA5 · clock', 'Clock'), ('3 · GP4 / RA4 · analógico', 'ADC'),
+    ('4 · GP3 / RA3 · MCLR / VPP', 'MCLR'), ('5 · GP2 / RA2 · funções alternativas', 'GPIO'),
+    ('6 · GP1 / RA1 · ICSPCLK', 'ICSP'), ('7 · GP0 / RA0 · ICSPDAT', 'ICSP'), ('8 · VSS', 'VSS'),
+]
+GENERIC_PINS = [('Alimentação e referência', 'VDD'), ('Pinos de entrada / saída', 'GPIO'),
+                ('Entradas analógicas', 'ADC'), ('Comunicação serial', 'UART'), ('Sinais SPI', 'SPI')]
+PROGRAMMING_TERM = {'pic': 'ICSP', 'avr': 'Bootloader', 'stm32': 'SWD'}
+
+GLOSSARY_CATEGORIES = [
+    ('fundamentos', 'Processamento e desempenho', '◎',
+     'Como o microcontrolador executa trabalho e como comparar sua capacidade sem confundir frequência, arquitetura e testes.',
+     ['MCU', 'CPU', 'Clock', 'MHz', 'PLL', 'MIPS', 'DMIPS', 'CoreMark', 'FPU', 'DSP', 'DMA', 'CORDIC', 'FMAC', 'Watchdog', 'Interrupt'],
+     ['Compare números obtidos pelo mesmo método; MIPS, DMIPS e CoreMark usam escalas diferentes.',
+      'Confirme se o recurso é do núcleo, de um periférico ou de um acelerador separado.',
+      'Frequência máxima indica ritmo de clock, não garante sozinha menor tempo de execução.']),
+    ('memoria', 'Memória e inicialização', '▤',
+     'Onde programa e dados ficam guardados, o que se perde ao desligar e como o firmware começa a executar.',
+     ['Flash', 'SRAM', 'EEPROM', 'HEF', 'CCM'],
+     ['Separe memória não volátil, que retém dados sem energia, da memória de trabalho volátil.',
+      'Confira tamanho, endereço, resistência a escritas e quais controladores conseguem acessar cada banco.',
+      'Reserve margem para pilha, buffers e atualizações; a capacidade anunciada não fica toda livre para a aplicação.']),
+    ('analogico', 'Analógico, tempo e controle', '∿',
+     'Como tensões viram números, números viram sinais e temporizadores coordenam medições e acionamentos.',
+     ['ADC', 'DAC', 'PWM', 'Timer', 'HRTIM', 'CCP', 'ECCP', 'OPAMP', 'VREF', 'LSB', 'INL', 'DNL', 'ENOB', 'SNR', 'SPS', 'MSPS', 'NCO', 'CWG', 'CLC'],
+     ['Resolução nominal não é o mesmo que precisão: referência, ruído, linearidade e tempo de aquisição também importam.',
+      'Verifique se o canal chega ao pino da placa e se não conflita com outra função alternativa.',
+      'Para cargas de potência, a saída do microcontrolador comanda um driver; ela não deve alimentar a carga diretamente.']),
+    ('comunicacao', 'Pinos e comunicação', '⇄',
+     'Como bits e sinais trafegam entre o microcontrolador, sensores, módulos e o computador.',
+     ['GPIO', 'GPIO 5 V tolerant', 'UART', 'USART', 'EUSART', 'SPI', 'I2C', 'USB', 'CAN', 'FDCAN', 'MSSP', 'MOSI', 'MISO', 'SCK', 'SDA', 'SCL', 'TX', 'RX', 'CS', 'Pull-up', 'Open Drain', 'PHY'],
+     ['Antes de ligar, confirme tensão lógica, direção do sinal, referência GND e pinagem dos dois lados.',
+      'Controlador interno, transceptor elétrico e conector físico são partes diferentes; a placa pode não incluir todas.',
+      'Funções alternativas compartilham pinos, portanto nem todas as interfaces ficam disponíveis simultaneamente.']),
+    ('eletrica', 'Alimentação, clock e limites', '⚡',
+     'Tensões, correntes, referências e condições que definem uma conexão segura e confiável.',
+     ['VDD', 'VSS', 'GND', 'VIL', 'VIH', 'VOL', 'VOH', 'IDD', 'Absolute Maximum Ratings', 'Typical', 'Min', 'Max', 'VBAT', 'HSE', 'HSI', 'LSE', 'RTC'],
+     ['Projete com as condições operacionais recomendadas; limite máximo absoluto é fronteira de dano, não ponto de trabalho.',
+      'Leia sempre unidade, tensão de alimentação, temperatura e corrente usadas na medição da tabela.',
+      'Terra comum é necessário para sinais referenciados, mas não corrige níveis lógicos incompatíveis.']),
+    ('gravacao', 'Gravação e depuração', '⌁',
+     'Como carregar firmware, escolher o modo de partida, reiniciar e investigar o programa em execução.',
+     ['SWD', 'ICSP', 'DFU', 'Bootloader', 'BOOT0', 'NRST', 'MCLR', 'Fuses'],
+     ['Confirme família do chip, interface, tensão de referência e suporte do software antes de conectar o gravador.',
+      'Bootloader ocupa ou redireciona parte da memória; o endereço da aplicação precisa corresponder ao método de inicialização.',
+      'Bits de configuração podem alterar clock, proteção e reset; registre o estado antes de modificá-los.']),
+    ('fisico', 'Encapsulamento e documentos', '▦',
+     'Como reconhecer o componente físico, orientar seus pinos e localizar a informação completa do fabricante.',
+     ['KiB', 'Pinout', 'Datasheet', 'PDIP', 'LQFP', 'UFQFPN', 'UFBGA', 'PCB'],
+     ['Confirme código completo, encapsulamento, revisão da placa e orientação do pino 1.',
+      'Pinout resume posições; datasheet define limites; manual de referência detalha registros e periféricos.',
+      'O número de terminais do encapsulamento não equivale à quantidade de GPIO livres.']),
+]
+
+SCHEMA_2 = '''
+CREATE TABLE families(
+  id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL,
+  tone TEXT NOT NULL, position INTEGER NOT NULL);
+CREATE TABLE components_v2(
+  id TEXT PRIMARY KEY,
+  category_id TEXT NOT NULL REFERENCES categories(id),
+  name TEXT NOT NULL,
+  family TEXT NOT NULL REFERENCES families(id),
+  kind TEXT NOT NULL CHECK(kind IN ('chip','placa')),
+  estimated INTEGER NOT NULL CHECK(estimated IN (0,1)),
+  position INTEGER NOT NULL,
+  specs TEXT NOT NULL CHECK(json_valid(specs)));
+CREATE TABLE movement_types(
+  id TEXT PRIMARY KEY, label TEXT NOT NULL, action TEXT NOT NULL,
+  delta_total INTEGER NOT NULL CHECK(delta_total IN (-1,0,1)),
+  delta_in_use INTEGER NOT NULL CHECK(delta_in_use IN (-1,0,1)),
+  tone TEXT NOT NULL, description TEXT NOT NULL, position INTEGER NOT NULL);
+CREATE TABLE movements(
+  id INTEGER PRIMARY KEY,
+  component_id TEXT NOT NULL REFERENCES components(id),
+  type_id TEXT NOT NULL REFERENCES movement_types(id),
+  quantity INTEGER NOT NULL CHECK(quantity > 0),
+  date TEXT NOT NULL CHECK(date GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]'),
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL);
+CREATE TABLE spec_fields(
+  key TEXT PRIMARY KEY, label TEXT NOT NULL,
+  format TEXT NOT NULL CHECK(format IN ('text','mhz','bytes')),
+  in_sheet INTEGER NOT NULL CHECK(in_sheet IN (0,1)),
+  in_compare INTEGER NOT NULL CHECK(in_compare IN (0,1)),
+  position INTEGER NOT NULL);
+CREATE TABLE column_groups(
+  id TEXT PRIMARY KEY, label TEXT NOT NULL, tone TEXT NOT NULL, position INTEGER NOT NULL);
+CREATE TABLE table_columns(
+  key TEXT PRIMARY KEY, label TEXT NOT NULL,
+  group_id TEXT NOT NULL REFERENCES column_groups(id),
+  width INTEGER NOT NULL CHECK(width > 0),
+  format TEXT NOT NULL CHECK(format IN ('component','family','stock','class','metric','annotated','text','mhz','bytes')),
+  field TEXT, unit TEXT, digits INTEGER, term TEXT REFERENCES glossary(term), help TEXT,
+  position INTEGER NOT NULL);
+CREATE TABLE processing_classes(name TEXT PRIMARY KEY, rank INTEGER NOT NULL UNIQUE);
+CREATE TABLE glossary_categories(
+  id TEXT PRIMARY KEY, name TEXT NOT NULL, icon TEXT NOT NULL, description TEXT NOT NULL,
+  tips TEXT NOT NULL CHECK(json_valid(tips)), position INTEGER NOT NULL);
+CREATE TABLE glossary_v2(
+  term TEXT PRIMARY KEY,
+  category_id TEXT NOT NULL REFERENCES glossary_categories(id),
+  position INTEGER NOT NULL,
+  meaning TEXT NOT NULL, short TEXT NOT NULL, detail TEXT NOT NULL, example TEXT NOT NULL);
+CREATE TABLE pin_guides(
+  guide TEXT NOT NULL, position INTEGER NOT NULL, label TEXT NOT NULL,
+  term TEXT NOT NULL REFERENCES glossary(term),
+  PRIMARY KEY(guide, position));
+'''
+
+# Criada depois das tabelas renomeadas: o SQLite revalida views a cada ALTER TABLE.
+STOCK_VIEW = '''
+CREATE VIEW component_stock AS
+  SELECT c.id AS component_id,
+         COALESCE(SUM(m.quantity * t.delta_total), 0) AS total,
+         COALESCE(SUM(m.quantity * t.delta_in_use), 0) AS in_use,
+         COALESCE(SUM(m.quantity * (t.delta_total - t.delta_in_use)), 0) AS available
+  FROM components c
+  LEFT JOIN movements m ON m.component_id = c.id
+  LEFT JOIN movement_types t ON t.id = m.type_id
+  GROUP BY c.id;
+'''
+
+
+def run_script(con: sqlite3.Connection, script: str) -> None:
+    # executescript() faria COMMIT antes; comandos individuais mantêm a migração numa só transação.
+    for statement in script.split(';\n'):
+        if statement.strip():
+            con.execute(statement)
+
+
+def migrate_to_2(con: sqlite3.Connection) -> None:
+    run_script(con, SCHEMA_2)
+    con.executemany('INSERT INTO families VALUES (?, ?, ?, ?, ?)',
+                    [(*family, i) for i, family in enumerate(FAMILIES, 1)])
+
+    for position, row in enumerate(con.execute('SELECT * FROM components ORDER BY rowid').fetchall(), 1):
+        specs = json.loads(row['specs'])
+        subtitle, flash_short, processing_class, accelerators, pin_guide = COMPONENT_EXTRAS[row['id']]
+        specs.pop('status', None)  # substituído pelo estoque calculado e pelo histórico
+        specs.update(subtitle=subtitle, flash_short=flash_short, processing_class=processing_class,
+                     accelerators=accelerators, pin_guide=pin_guide)
+        if row['id'] == 'bluepill':
+            specs.update(pinout_notice=BLUEPILL_PINOUT_NOTICE, coremark_note=BLUEPILL_COREMARK_NOTE)
+        con.execute('INSERT INTO components_v2 VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    (row['id'], row['category_id'], row['name'], row['family'], row['kind'], row['estimated'],
+                     position, json.dumps(specs, ensure_ascii=False, sort_keys=True)))
+    old_totals = dict(con.execute('SELECT id, quantity FROM components'))
+    con.execute('DROP TABLE components')
+    con.execute('ALTER TABLE components_v2 RENAME TO components')
+    run_script(con, STOCK_VIEW)
+
+    con.executemany('INSERT INTO movement_types VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    [(*kind, i) for i, kind in enumerate(MOVEMENT_TYPES, 1)])
+    created = db.now()
+    con.executemany('INSERT INTO movements(component_id, type_id, quantity, date, note, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                    [(*movement, created) for movement in INITIAL_MOVEMENTS])
+    discarded = {'uno': 1}
+    for component_id, total in con.execute('SELECT component_id, total FROM component_stock'):
+        assert total == old_totals[component_id] - discarded.get(component_id, 0), component_id
+
+    con.executemany('INSERT INTO spec_fields VALUES (?, ?, ?, ?, ?, ?)',
+                    [(*field, i) for i, field in enumerate(SPEC_FIELDS, 1)])
+    con.executemany('INSERT INTO column_groups VALUES (?, ?, ?, ?)',
+                    [(*group, i) for i, group in enumerate(COLUMN_GROUPS, 1)])
+    con.executemany('INSERT INTO table_columns VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [(*column, i) for i, column in enumerate(TABLE_COLUMNS, 1)])
+    con.executemany('INSERT INTO processing_classes VALUES (?, ?)', PROCESSING_CLASSES)
+
+    category_of = {}
+    for position, (cid, name, icon, description, terms, tips) in enumerate(GLOSSARY_CATEGORIES, 1):
+        con.execute('INSERT INTO glossary_categories VALUES (?, ?, ?, ?, ?, ?)',
+                    (cid, name, icon, description, json.dumps(tips, ensure_ascii=False), position))
+        category_of.update({term: (cid, i) for i, term in enumerate(terms, 1)})
+    for row in con.execute('SELECT * FROM glossary').fetchall():
+        cid, position = category_of[row['term']]
+        con.execute('INSERT INTO glossary_v2 VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    (row['term'], cid, position, row['meaning'], row['short'], row['detail'], row['example']))
+    con.execute('DROP TABLE glossary')
+    con.execute('ALTER TABLE glossary_v2 RENAME TO glossary')
+
+    guides = [('pic12', i, label, term) for i, (label, term) in enumerate(PIC12_PINS, 1)]
+    for guide, term in PROGRAMMING_TERM.items():
+        pins = GENERIC_PINS + [('Gravação / depuração', term)]
+        guides += [(guide, i, label, t) for i, (label, t) in enumerate(pins, 1)]
+    con.executemany('INSERT INTO pin_guides VALUES (?, ?, ?, ?)', guides)
+
+
+# ---------------------------------------------------------------- versão 3
+# Arduino Uno: folha simples com todos os pinos (scripts/make_arduino_pinouts.py) antes da folha oficial.
+
+UNO_PINOUTS = [
+    {'file': 'uno-pinout-simple.png', 'title': 'Simples · todos os pinos com porta, número no chip e funções', 'notice': ''},
+    {'file': 'uno-pinout.png', 'title': 'Folha oficial Arduino UNO R3 (A000066) · referência', 'notice': ''},
+]
+UNO_PINOUT_CREDIT = ('Simples: desenho do almoxarifado a partir do datasheet ATmega328P (Figura 1-1, tabela 28.1) e da folha '
+                     'oficial Arduino A000066 · oficial: Arduino, CC BY-SA 4.0')
+
+
+def migrate_to_3(con: sqlite3.Connection) -> None:
+    specs = json.loads(con.execute("SELECT specs FROM components WHERE id = 'uno'").fetchone()[0])
+    specs.update(pinout=UNO_PINOUTS[0]['file'], pinouts=UNO_PINOUTS, pinout_credit=UNO_PINOUT_CREDIT)
+    con.execute("UPDATE components SET specs = ? WHERE id = 'uno'", (json.dumps(specs, ensure_ascii=False, sort_keys=True),))
+
+
+# ---------------------------------------------------------------- versão 4
+# Arduino Nano: mesma solução do Uno (folha simples gerada + folha oficial como referência).
+
+NANO_PINOUTS = [
+    {'file': 'nano-pinout-simple.png', 'title': 'Simples · todos os pinos com porta, número no chip e funções', 'notice': ''},
+    {'file': 'nano-pinout.png', 'title': 'Folha oficial Arduino Nano (A000005) · referência', 'notice': ''},
+]
+NANO_PINOUT_CREDIT = ('Simples: desenho do almoxarifado a partir do datasheet ATmega328P (Figura 1-1, tabela 28.1) e da folha '
+                      'oficial Arduino A000005 · oficial: Arduino, CC BY-SA 4.0')
+
+
+def migrate_to_4(con: sqlite3.Connection) -> None:
+    specs = json.loads(con.execute("SELECT specs FROM components WHERE id = 'nano'").fetchone()[0])
+    specs.update(pinout=NANO_PINOUTS[0]['file'], pinouts=NANO_PINOUTS, pinout_credit=NANO_PINOUT_CREDIT)
+    con.execute("UPDATE components SET specs = ? WHERE id = 'nano'", (json.dumps(specs, ensure_ascii=False, sort_keys=True),))
+
+
+MIGRATIONS = {2: migrate_to_2, 3: migrate_to_3, 4: migrate_to_4}
+
+
+def migrate(path: Path = db.DATABASE) -> int:
+    con = db.connect(path)
+    con.isolation_level = None  # transações explícitas abaixo
+    con.execute('PRAGMA foreign_keys = OFF')  # tabelas são recriadas durante a migração
+    version = con.execute('PRAGMA user_version').fetchone()[0]
+    migrated = False
+    for target in sorted(v for v in MIGRATIONS if v > version):
+        con.execute('BEGIN')
+        try:
+            MIGRATIONS[target](con)
+            problems = con.execute('PRAGMA foreign_key_check').fetchall()
+            if problems:
+                raise RuntimeError(f'Chaves estrangeiras inválidas: {[tuple(p) for p in problems]}')
+            con.execute(f'PRAGMA user_version = {target}')
+            con.execute('COMMIT')
+        except BaseException:
+            con.execute('ROLLBACK')
+            raise
+        print(f'Banco migrado para a versão {target}.')
+        version = target
+        migrated = True
+    if migrated:
+        con.execute('VACUUM')  # só depois de migrar, para não alterar o binário à toa
+    con.close()
+    return version
+
+
+if __name__ == '__main__':
+    print(f'Versão atual: {migrate()}. Execute python3 scripts/export.py para atualizar os snapshots.')

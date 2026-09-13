@@ -1,22 +1,31 @@
-"""Export the committed SQLite database to a deterministic file:// readable snapshot."""
-import json,sqlite3,argparse
+"""Gera data/catalog.js (lido pela página via file://) e data/inventory.sql a partir do SQLite.
+
+Uso: python3 scripts/export.py [--check]
+"""
+import argparse
+import sys
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
-def export():
- con=sqlite3.connect('file:'+str(ROOT/'data/inventory.sqlite')+'?mode=ro',uri=True);con.row_factory=sqlite3.Row
- assert con.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
- components=[]
- for row in con.execute('SELECT * FROM components ORDER BY rowid'):
-  item=dict(row);item.update(json.loads(item.pop('specs')));components.append(item)
- result={'schema':1,'components':components,'glossary':[dict(r) for r in con.execute('SELECT * FROM glossary ORDER BY term')],'tools':[dict(r) for r in con.execute('SELECT * FROM tools ORDER BY rowid')],'sources':json.loads((ROOT/'data/sources.json').read_text())}
- con.close()
- return 'window.CATALOG = '+json.dumps(result,ensure_ascii=False,sort_keys=True,indent=2)+';\n'
-if __name__=='__main__':
- parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args();target=ROOT/'data/catalog.js';content=export()
- con=sqlite3.connect('file:'+str(ROOT/'data/inventory.sqlite')+'?mode=ro',uri=True)
- dump='-- Gerado de inventory.sqlite; edite o banco e execute scripts/export.py.\n'+'\n'.join(con.iterdump())+'\nPRAGMA user_version=1;\n';con.close()
- sql=ROOT/'data/inventory.sql'
- if args.check:
-  if not target.exists() or target.read_text()!=content or not sql.exists() or sql.read_text()!=dump: raise SystemExit('Snapshot desatualizado: execute python3 scripts/export.py')
-  print('SQLite e snapshot consistentes.')
- else: target.write_text(content);sql.write_text(dump);print('Snapshot exportado para data/catalog.js.')
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import db  # noqa: E402
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--check', action='store_true', help='só confere; falha se algum snapshot estiver desatualizado')
+    args = parser.parse_args()
+    con = db.connect(db.DATABASE, readonly=True)
+    files = db.snapshots(con)
+    con.close()
+    if args.check:
+        if any(not path.exists() or path.read_text() != content for path, content in files.items()):
+            raise SystemExit('Snapshot desatualizado: execute python3 scripts/export.py')
+        print('SQLite e snapshots consistentes.')
+        return
+    for path, content in files.items():
+        path.write_text(content)
+    print('Snapshots exportados para data/catalog.js e data/inventory.sql.')
+
+
+if __name__ == '__main__':
+    main()

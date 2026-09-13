@@ -32,8 +32,8 @@ As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho 
 | PIC12F683 | pic12f683.pdf | p. 4 (diagrama PDIP + Tabela 1); os encapsulamentos DFN foram recortados fora |
 | PIC12F1501 | pic12f1501.pdf | p. 3 (diagrama) + p. 4 (Tabela 1, alocação de funções) |
 | BluePill | bluepill-generic-f103.png | imagem completa, sem recorte |
-| Uno | uno-pinout.pdf | p. 1 |
-| Nano | nano-pinout.pdf | p. 1 |
+| Uno | atmega328p.pdf (Figura 1-1, tabela 28.1) + uno-pinout.pdf (p. 1 e 3) | desenho próprio `uno-pinout-simple.png` (gerado por `scripts/make_arduino_pinouts.py`) seguido do recorte oficial `uno-pinout.png` (p. 1). Ver [ARDUINO-PINOUT.md](ARDUINO-PINOUT.md) |
+| Nano | atmega328p.pdf (Figura 1-1, tabela 28.1) + nano-pinout.pdf (p. 1–3) | desenho próprio `nano-pinout-simple.png` (gerado por `scripts/make_arduino_pinouts.py`) seguido do recorte oficial `nano-pinout.png` (p. 1). Ver [ARDUINO-PINOUT.md](ARDUINO-PINOUT.md) |
 | BlackPill | blackpill-pinout.pdf | p. 1, página inteira e inalterada |
 | G474 Long | stm32g474.pdf (tabelas 12 e 13) + g474-long-schematic.pdf + weact-g474-long-board.png | desenhos próprios empilhados: `g474-long-pinout-simple.png` (visão rápida) e `g474-long-pinout-full.png` (todas as funções), ambos com numeração UFQFPN48 conferida. Ver [G474-PINOUT.md](G474-PINOUT.md) |
 | H7R3 | stm32h7r3.pdf (tabelas 2, 3, 19 e 20) + h7-schematic.pdf + h7-pinout.pdf | duas visões gerais (`h7-pinout-simple.png`, `h7-pinout-full.png`) e cinco folhas por header (`h7-pinout-simple-left/right.png`, `h7-pinout-full-left/right/extra.png`), com esferas UFBGA144 SMPS GP. Ver [H7R3-PINOUT.md](H7R3-PINOUT.md) |
