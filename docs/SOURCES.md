@@ -36,7 +36,7 @@ As prévias são recortes das páginas e imagens listadas abaixo, sem redesenho 
 | Nano | nano-pinout.pdf | p. 1 |
 | BlackPill | blackpill-pinout.pdf | p. 1, página inteira e inalterada |
 | G474 Long | stm32g474.pdf (tabelas 12 e 13) + g474-long-schematic.pdf + weact-g474-long-board.png | desenhos próprios empilhados: `g474-long-pinout-simple.png` (visão rápida) e `g474-long-pinout-full.png` (todas as funções), ambos com numeração UFQFPN48 conferida. Ver [G474-PINOUT.md](G474-PINOUT.md) |
-| H7R3 | stm32h7r3.pdf (tabelas 2, 3, 19 e 20) + h7-schematic.pdf + h7-pinout.pdf | desenhos próprios empilhados: `h7-pinout-simple.png` e `h7-pinout-full.png`, com esferas UFBGA144 SMPS GP. Ver [H7R3-PINOUT.md](H7R3-PINOUT.md) |
+| H7R3 | stm32h7r3.pdf (tabelas 2, 3, 19 e 20) + h7-schematic.pdf + h7-pinout.pdf | duas visões gerais (`h7-pinout-simple.png`, `h7-pinout-full.png`) e cinco folhas por header (`h7-pinout-simple-left/right.png`, `h7-pinout-full-left/right/extra.png`), com esferas UFBGA144 SMPS GP. Ver [H7R3-PINOUT.md](H7R3-PINOUT.md) |
 
 Desenhos de pinagem sem PDF oficial ficam em `assets/pinouts/sources/`. URL, SHA-256, crédito e licença de cada um estão em `data/pinout_sources.json`.
 

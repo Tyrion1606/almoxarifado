@@ -19,6 +19,18 @@ class InventoryTests(unittest.TestCase):
   self.assertIn('STM32F411CEU6',p['blackpill']['package']);self.assertIn('8 MiB',p['blackpill']['external']);self.assertIn('25 MHz',p['blackpill']['oscillator'])
   self.assertIn('STM32G474CEU6',p['g474']['package']);self.assertEqual(p['g474']['ram'],131072)
   self.assertIn('64 KiB',p['h7r3']['flash']);self.assertEqual(p['h7r3']['dac'],'Não')
+ def test_published_performance_metrics(self):
+  p={p['id']:p for p in self.data['components']}
+  for component_id in ('pic16f887','pic12f675','pic12f683','pic12f1501'):
+   self.assertEqual(p[component_id]['mips_peak'],5)
+  self.assertEqual(p['uno']['mips_peak'],16);self.assertEqual(p['nano']['mips_peak'],16)
+  expected={'bluepill':(108.26,90,1.0),'blackpill':(339,125,1.39),'g474':(569,213,2.37),'h7r3':(3196,1284,14.27)}
+  for component_id,(coremark,dmips,relative) in expected.items():
+   self.assertEqual(p[component_id]['coremark'],coremark)
+   self.assertEqual(p[component_id]['dmips'],dmips)
+   self.assertEqual(p[component_id]['relative_bluepill'],relative)
+  glossary={entry['term'] for entry in self.data['glossary']}
+  self.assertTrue({'MIPS','DMIPS','CoreMark'} <= glossary)
  def test_every_local_asset(self):
   for p in self.data['components']:
    for directory,key in [('assets/documents','datasheet'),('assets/pinouts','pinout'),('assets/documents','pinout_source')]:
@@ -52,7 +64,8 @@ class InventoryTests(unittest.TestCase):
  def test_h7r3_pinout_versions(self):
   # Simples e completa empilhadas; pinos do CI pela esfera UFBGA144 SMPS GP (docs/H7R3-PINOUT.md).
   h7={p['id']:p for p in self.data['components']}['h7r3']
-  self.assertEqual([p['file'] for p in h7['pinouts']],['h7-pinout-simple.png','h7-pinout-full.png'])
+  self.assertEqual([p['file'] for p in h7['pinouts']],['h7-pinout-simple.png','h7-pinout-full.png','h7-pinout-simple-left.png','h7-pinout-simple-right.png','h7-pinout-full-left.png','h7-pinout-full-right.png','h7-pinout-full-extra.png'])
+  self.assertEqual(sorted(p.name for p in (ROOT/'assets/pinouts').glob('h7-pinout-*.png')),sorted(p['file'] for p in h7['pinouts']))
   self.assertEqual(h7['pinout'],h7['pinouts'][0]['file'])
   for p in h7['pinouts']:
    self.assertTrue((ROOT/'assets/pinouts'/p['file']).read_bytes().startswith(b'\x89PNG\r\n\x1a\n'),p['file'])

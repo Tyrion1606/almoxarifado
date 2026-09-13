@@ -16,6 +16,7 @@ window.CATALOG = {
       "id": "pic16f887",
       "kind": "chip",
       "logic": "Conforme VDD (2–5,5 V)",
+      "mips_peak": 5,
       "name": "PIC16F887-I/P",
       "notes": "RE3/MCLR é somente entrada. Clock máximo depende da tensão. Pinos analógicos precisam de configuração para uso digital.",
       "origin": "Inventario_Componentes_Eletronicos_Obsidian.md · 07/05/2026",
@@ -51,6 +52,7 @@ window.CATALOG = {
       "id": "pic12f675",
       "kind": "chip",
       "logic": "Conforme VDD (2–5,5 V)",
+      "mips_peak": 5,
       "name": "PIC12F675-I/P",
       "notes": "Pino 4 (GP3/RA3) somente entrada. Funções compartilham pinos; oscilador externo e MCLR reduzem os sinais livres.",
       "origin": "Inventario_Componentes_Eletronicos_Obsidian.md · 07/05/2026",
@@ -87,6 +89,7 @@ window.CATALOG = {
       "id": "pic12f683",
       "kind": "chip",
       "logic": "Conforme VDD (2–5,5 V)",
+      "mips_peak": 5,
       "name": "PIC12F683-I/P",
       "notes": "Pino 4 (GP3/RA3) somente entrada. Funções compartilham pinos; oscilador externo e MCLR reduzem os sinais livres.",
       "origin": "Inventario_Componentes_Eletronicos_Obsidian.md · 07/05/2026",
@@ -123,6 +126,7 @@ window.CATALOG = {
       "id": "pic12f1501",
       "kind": "chip",
       "logic": "Conforme VDD (2–5,5 V)",
+      "mips_peak": 5,
       "name": "PIC12F1501-I/P",
       "notes": "Pino 4 (GP3/RA3) somente entrada. Funções compartilham pinos; oscilador externo e MCLR reduzem os sinais livres.",
       "origin": "Inventario_Componentes_Eletronicos_Obsidian.md · 07/05/2026",
@@ -159,6 +163,7 @@ window.CATALOG = {
       "id": "uno",
       "kind": "placa",
       "logic": "5 V",
+      "mips_peak": 16,
       "name": "Arduino Uno",
       "notes": "Referência Uno R3 com ATmega328P; revisão física não registrada.",
       "origin": "Relato do usuário · 12/09/2026",
@@ -194,6 +199,7 @@ window.CATALOG = {
       "id": "nano",
       "kind": "placa",
       "logic": "5 V",
+      "mips_peak": 16,
       "name": "Arduino Nano",
       "notes": "Um soldado em placa de circuito impresso (PCB), outro solto. Referência Nano clássico ATmega328P; A6/A7 são somente analógicos.",
       "origin": "Relato do usuário · 12/09/2026",
@@ -217,9 +223,13 @@ window.CATALOG = {
       "adc": "12 bits · 10 canais externos",
       "category_id": "microcontroladores",
       "clock": 72,
+      "coremark": 108.26,
+      "coremark_per_mhz": 1.5036,
       "cpu": "Cortex-M3 · 32 bits",
       "dac": "Não",
       "datasheet": "stm32f103c8.pdf",
+      "dmips": 90,
+      "dmips_per_mhz": 1.25,
       "eeprom": "Sem EEPROM",
       "estimated": 0,
       "external": "Não registrada",
@@ -241,6 +251,7 @@ window.CATALOG = {
       "pwm": "Timers com PWM",
       "quantity": 3,
       "ram": 20480,
+      "relative_bluepill": 1.0,
       "serial": "USART · SPI · I2C · USB FS · CAN 2.0B",
       "status": "Em estoque",
       "temperature": "−40 a +85 °C",
@@ -253,9 +264,13 @@ window.CATALOG = {
       "adc": "12 bits · até 10 canais externos",
       "category_id": "microcontroladores",
       "clock": 100,
+      "coremark": 339,
+      "coremark_per_mhz": 3.39,
       "cpu": "Cortex-M4F · 32 bits · FPU",
       "dac": "Não",
       "datasheet": "stm32f411ce.pdf",
+      "dmips": 125,
+      "dmips_per_mhz": 1.25,
       "eeprom": "Sem EEPROM",
       "estimated": 0,
       "evidence": "docs/evidence/blackpill-variant.png",
@@ -278,6 +293,7 @@ window.CATALOG = {
       "pwm": "Timers com PWM",
       "quantity": 1,
       "ram": 131072,
+      "relative_bluepill": 1.39,
       "serial": "USART · SPI/I2S · I2C · USB FS · SDIO",
       "status": "Em uso no TCC",
       "temperature": "−40 a +85 °C (chip)",
@@ -290,9 +306,13 @@ window.CATALOG = {
       "adc": "5 ADCs · 12 bits (canais dependem dos pinos)",
       "category_id": "microcontroladores",
       "clock": 170,
+      "coremark": 569,
+      "coremark_per_mhz": 3.35,
       "cpu": "Cortex-M4F · 32 bits · FPU · DSP",
       "dac": "7 canais no chip; nem todos externos",
       "datasheet": "stm32g474.pdf",
+      "dmips": 213,
+      "dmips_per_mhz": 1.25,
       "eeprom": "Sem EEPROM",
       "estimated": 0,
       "external": "Não registrada",
@@ -326,6 +346,7 @@ window.CATALOG = {
       "pwm": "HRTIM + timers convencionais",
       "quantity": 1,
       "ram": 131072,
+      "relative_bluepill": 2.37,
       "schematic": "g474-long-schematic.pdf",
       "serial": "USART/UART · SPI/I2S · I2C · USB FS · FDCAN",
       "special": "CORDIC · FMAC · comparadores · OPAMP · HRTIM",
@@ -339,9 +360,13 @@ window.CATALOG = {
       "adc": "2 ADCs · 12 bits",
       "category_id": "microcontroladores",
       "clock": 600,
+      "coremark": 3196,
+      "coremark_per_mhz": 5.33,
       "cpu": "Cortex-M7 · 32 bits · FPU dupla precisão · DSP · cache",
       "dac": "Não",
       "datasheet": "stm32h7r3.pdf",
+      "dmips": 1284,
+      "dmips_per_mhz": 2.14,
       "eeprom": "Sem EEPROM",
       "estimated": 0,
       "external": "8 MiB Flash na placa (WeAct)",
@@ -363,18 +388,44 @@ window.CATALOG = {
         {
           "file": "h7-pinout-simple.png",
           "notice": "",
-          "title": "Simples · GPIO e funções principais"
+          "title": "Visão geral · simples (placa inteira) · clique para ampliar"
         },
         {
           "file": "h7-pinout-full.png",
           "notice": "",
-          "title": "Completa · todas as funções (AF0–AF15 com número + funções adicionais)"
+          "title": "Visão geral · completa (placa inteira) · clique para ampliar"
+        },
+        {
+          "file": "h7-pinout-simple-left.png",
+          "notice": "",
+          "title": "Simples · header esquerdo (P2 + P4)"
+        },
+        {
+          "file": "h7-pinout-simple-right.png",
+          "notice": "",
+          "title": "Simples · header direito (P1 + P3)"
+        },
+        {
+          "file": "h7-pinout-full-left.png",
+          "notice": "",
+          "title": "Completa · header esquerdo (P2 + P4) · todas as funções"
+        },
+        {
+          "file": "h7-pinout-full-right.png",
+          "notice": "",
+          "title": "Completa · header direito (P1 + P3) · todas as funções"
+        },
+        {
+          "file": "h7-pinout-full-extra.png",
+          "notice": "",
+          "title": "Completa · pinos fora dos headers e notas"
         }
       ],
       "programmer": "SWD com ferramentas atualizadas para H7RS; verificar suporte do ST-Link V2",
       "pwm": "Timers avançados e gerais",
       "quantity": 1,
       "ram": 634880,
+      "relative_bluepill": 14.27,
       "schematic": "h7-schematic.pdf",
       "serial": "USART/UART · SPI/I2S · I2C · USB HS/FS · FDCAN · Ethernet",
       "special": "CORDIC · 2 controladores DMA",
@@ -478,6 +529,13 @@ window.CATALOG = {
       "term": "Clock"
     },
     {
+      "detail": "Quanto maior a pontuação, maior o trabalho concluído no teste. Compilador, memória e configuração podem alterar o resultado.",
+      "example": "O valor da BluePill é uma referência do STM32F103RB da mesma família, não uma medição do STM32F103C8 exato.",
+      "meaning": "Benchmark CoreMark",
+      "short": "Teste padronizado de capacidade de processamento de microcontroladores.",
+      "term": "CoreMark"
+    },
+    {
       "detail": "Confira resolução, faixa de saída, buffer e se o canal chega a um pino externo. PWM filtrado pode aproximar uma saída analógica, mas não é um DAC nativo.",
       "example": "PIC12F1501 tem DAC de 5 bits. F411 não possui DAC.",
       "meaning": "Digital-to-Analog Converter · conversor digital-analógico",
@@ -497,6 +555,13 @@ window.CATALOG = {
       "meaning": "Direct Memory Access · acesso direto à memória",
       "short": "Transfere dados sem a CPU copiar cada item.",
       "term": "DMA"
+    },
+    {
+      "detail": "É uma medição diferente de MIPS. Aqui permite comparar os STM32 usando números publicados pela STMicroelectronics.",
+      "example": "A BluePill tem 90 DMIPS; ela é a referência 1,00× da coluna de desempenho relativo.",
+      "meaning": "Dhrystone Million Instructions Per Second",
+      "short": "Resultado normalizado do teste Dhrystone.",
+      "term": "DMIPS"
     },
     {
       "detail": "Relaciona-se a códigos ausentes e monotonicidade. Resolução nominal não descreve essa variação.",
@@ -714,6 +779,13 @@ window.CATALOG = {
       "meaning": "Megahertz",
       "short": "Um milhão de ciclos por segundo.",
       "term": "MHz"
+    },
+    {
+      "detail": "Neste catálogo, é usado para PIC e ATmega328P. Não deve ser comparado diretamente com DMIPS ou CoreMark.",
+      "example": "Os PIC de 20 MHz chegam a 5 MIPS; o ATmega328P de 16 MHz chega a 16 MIPS.",
+      "meaning": "Milhões de instruções por segundo",
+      "short": "Indica o pico de instruções executadas por segundo.",
+      "term": "MIPS"
     },
     {
       "detail": "Também chamada CIPO, Controller In Peripheral Out. Dispositivos não selecionados devem liberar a linha quando compartilhada.",

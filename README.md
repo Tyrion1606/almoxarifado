@@ -15,7 +15,7 @@ Para receber melhorias, execute `git pull` na pasta do projeto e recarregue a p�
 - **10 modelos e 19 unidades:** quatro PICs, Uno, Nano, BluePill, BlackPill e as novas WeAct G474 Long e H7R3. As 10 unidades PIC são estimativas do Obsidian.
 - **Compare:** marque os componentes na tabela; as diferenças aparecem destacadas.
 - **Explore:** expanda uma linha para ver especificações, aplicação, pinagem e datasheet.
-- **Entenda:** 91 termos com explicação rápida ao passar o cursor e documentação completa ao clicar. Funciona também por teclado e toque.
+- **Entenda:** 94 termos organizados por assunto, com nome completo das siglas, explicação simples, funcionamento, exemplo do acervo e cuidados de uso. A aba **Documentação** também traz esquemas clicáveis e um guia para interpretar fichas técnicas. Funciona por mouse, teclado e toque.
 - **Consulte offline:** documentos originais e leitura comentada incluídos no repositório. Links para as fontes são opcionais e precisam de internet.
 - **Conecte:** fichas do CH343P, ST-Link V2 e PICkit 3.
 
